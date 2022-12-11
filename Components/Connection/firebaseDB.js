@@ -3,15 +3,15 @@ import "firebase/firestore";
 import "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCA-A-LbSExshqgqtT1xIi7iLFJ8D-gmlU",
-  authDomain: "affection-2d245.firebaseapp.com",
+  apiKey: "AIzaSyB31BuywNep10Ct9UD-qNKCU40rUf-4rfo",
+  authDomain: "cityfoods-70f48.firebaseapp.com",
   databaseURL:
-    "https://affection-2d245-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "affection-2d245",
-  storageBucket: "affection-2d245.appspot.com",
-  messagingSenderId: "722543280212",
-  appId: "1:722543280212:web:3786b1c6836ffdda4cadc1",
-  measurementId: "G-HPJB2F0Y0B",
+    "https://cityfoods-70f48-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "cityfoods-70f48",
+  storageBucket: "cityfoods-70f48.appspot.com",
+  messagingSenderId: "1025016915176",
+  appId: "1:1025016915176:web:7b16f9da8b558cd49ad55d",
+  measurementId: "G-HFR5V94S0H",
 };
 
 let app;

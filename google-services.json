@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1025016915176",
+    "firebase_url": "https://cityfoods-70f48-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "cityfoods-70f48",
+    "storage_bucket": "cityfoods-70f48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025016915176:android:929877037c9a37849ad55d",
+        "android_client_info": {
+          "package_name": "com.futuredesigns.cityfoods"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1025016915176-5s0bbab2gira435j04khh7bqdauafahq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHftDQmbonkuwZTzSPFAKiNl-g9lmvccM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1025016915176-5s0bbab2gira435j04khh7bqdauafahq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1025016915176-64c3ave50dosmc9ig8963f0jubtgi6r2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.futuredesigns.cityfoods"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
