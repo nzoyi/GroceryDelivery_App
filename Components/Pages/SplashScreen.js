@@ -38,15 +38,14 @@ const SplashScreen = ({ navigation, route }) => {
   NetInfo.fetch().then((state) => {
     if (state.isConnected) {
       setTimeout(() => {
-        /*let user = firebase.auth().currentUser;
+        let user = firebase.auth().currentUser;
         if (user) {
           navigation.replace("MainPage");
         } else {
-          navigation.replace("Login");
-        }*/
-
-        navigation.replace("MainPage");
-      }, 5000);
+          //navigation.replace("Login");
+          navigation.replace("HomePage");
+        }
+      }, 1000);
     } else {
       showToast("Error No Internet Connection");
     }

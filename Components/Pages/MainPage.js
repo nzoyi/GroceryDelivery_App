@@ -69,6 +69,30 @@ export default function MainPage({ navigation }) {
     };
   }, []);
 
+  let user = firebase.auth().currentUser;
+
+  if (!user) {
+    navigation.replace("Login");
+  }
+
+  const [userName, setUsername] = useState("");
+  const [uImage, setUImage] = useState("");
+
+  const userRef = db.ref("UserAccounts/" + user.uid);
+  function getUserData() {
+    let isMounted = true;
+    userRef.on("value", (snapshot) => {
+      if (isMounted) {
+        let dataVal = snapshot.val();
+
+        setUsername(dataVal.Name);
+        setUImage(dataVal.Profile);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
   const [itemArray, setItemArray] = useState([]);
   const [itemArray2, setItemArray2] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -123,6 +147,7 @@ export default function MainPage({ navigation }) {
   }
 
   useEffect(() => {
+    getUserData();
     ItemImages();
     ItemImages2();
   }, []);
@@ -137,20 +162,20 @@ export default function MainPage({ navigation }) {
       value: "Vegetables",
     },
     {
-      id: "Cereals",
-      value: "Cereals",
+      id: "Grains",
+      value: "Grains",
     },
     {
       id: "Fruits",
       value: "Fruits",
     },
     {
-      id: "Berry",
-      value: "Berry",
+      id: "Protein Foods",
+      value: "Protein Foods",
     },
     {
-      id: "Diary",
-      value: "Diary",
+      id: "Dairy",
+      value: "Dairy",
     },
   ];
 
@@ -215,18 +240,29 @@ export default function MainPage({ navigation }) {
     return () => clearInterval(intervalID);
   }, [shuffle]);
 
-  function checkState() {
+  function checkState(id) {
+    //console.log(id);
     if (clicked == "All") {
+      setClicked(id);
       setShowSelection(false);
       setLoadAll(true);
     } else {
+      setClicked(id);
       setShowSelection(true);
       setLoadAll(false);
     }
   }
 
+  const [aboutVisible, setAboutVisible] = useState(false);
+
+  const toggleBottom = () => {
+    setAboutVisible(!aboutVisible);
+  };
+
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [data, setData] = useState([]);
+  const [dataId, setDataId] = useState("");
   const [filteredDataSource, setFilteredDataSource] = useState([]);
 
   const searchFilterFunction = (text) => {
@@ -274,8 +310,7 @@ export default function MainPage({ navigation }) {
               <TouchableOpacity
                 key={index}
                 onPress={() => {
-                  setClicked(item.id);
-                  checkState();
+                  checkState(item.id);
                 }}
               >
                 <Text
@@ -307,8 +342,7 @@ export default function MainPage({ navigation }) {
               <TouchableOpacity
                 key={index}
                 onPress={() => {
-                  setClicked(item.id);
-                  checkState();
+                  checkState(item.id);
                 }}
               >
                 <Text
@@ -358,7 +392,12 @@ export default function MainPage({ navigation }) {
           {itemArray2
             .map(function (items, index) {
               return index < 6 ? (
-                <TouchableWithoutFeedback key={index}>
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() =>
+                    navigation.navigate("ProductDetails", items.id)
+                  }
+                >
                   <View
                     style={{
                       borderRadius: 20,
@@ -404,6 +443,11 @@ export default function MainPage({ navigation }) {
                       </Text>
                       <Rating id={items.id} />
                       <TouchableOpacity
+                        onPress={() => {
+                          setData(items.key);
+                          setDataId(items.id);
+                          setAboutVisible(true);
+                        }}
                         style={{
                           position: "absolute",
                           alignSelf: "flex-end",
@@ -442,7 +486,12 @@ export default function MainPage({ navigation }) {
           {newData2
             .map((items, index) => {
               return index < 6 ? (
-                <TouchableWithoutFeedback key={index}>
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() =>
+                    navigation.navigate("ProductDetails", items.id)
+                  }
+                >
                   <View
                     style={{
                       borderBottomRightRadius: 20,
@@ -461,6 +510,11 @@ export default function MainPage({ navigation }) {
                     />
 
                     <TouchableOpacity
+                      onPress={() => {
+                        setData(items.key);
+                        setDataId(items.id);
+                        setAboutVisible(true);
+                      }}
                       style={{
                         position: "absolute",
                         alignSelf: "flex-end",
@@ -530,7 +584,7 @@ export default function MainPage({ navigation }) {
 
     const newData2 = newData.filter(function (item) {
       const itemData = item.key.Category ? item.key.Category : "";
-      return itemData.indexOf("Cereals") > -1;
+      return itemData.indexOf("Grains") > -1;
     });
     return (
       <View>
@@ -538,7 +592,12 @@ export default function MainPage({ navigation }) {
           {newData2
             .map((items, index) => {
               return index < 6 ? (
-                <TouchableWithoutFeedback key={index}>
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() =>
+                    navigation.navigate("ProductDetails", items.id)
+                  }
+                >
                   <View
                     style={{
                       borderRadius: 20,
@@ -586,6 +645,11 @@ export default function MainPage({ navigation }) {
                         UGX {items.key.Price}
                       </Text>
                       <TouchableOpacity
+                        onPress={() => {
+                          setData(items.key);
+                          setDataId(items.id);
+                          setAboutVisible(true);
+                        }}
                         style={{
                           position: "absolute",
                           alignSelf: "flex-end",
@@ -857,7 +921,10 @@ export default function MainPage({ navigation }) {
       <View>
         <ScrollView showsVerticalScrollIndicator={false}>
           {newData2.map((items, index) => (
-            <TouchableWithoutFeedback key={index}>
+            <TouchableWithoutFeedback
+              key={index}
+              onPress={() => navigation.navigate("ProductDetails", items.id)}
+            >
               <View
                 style={{
                   borderBottomRightRadius: 20,
@@ -915,6 +982,11 @@ export default function MainPage({ navigation }) {
                 </View>
 
                 <TouchableOpacity
+                  onPress={() => {
+                    setData(items.key);
+                    setDataId(items.id);
+                    setAboutVisible(true);
+                  }}
                   style={{
                     position: "absolute",
                     right: 0,
@@ -1004,7 +1076,7 @@ export default function MainPage({ navigation }) {
             }}
           >
             <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
-              Cereals
+              Grains
             </Text>
             <TouchableOpacity>
               <Text
@@ -1030,7 +1102,10 @@ export default function MainPage({ navigation }) {
       <View>
         <ScrollView showsVerticalScrollIndicator={false}>
           {filteredDataSource.map((items, index) => (
-            <TouchableWithoutFeedback key={index}>
+            <TouchableWithoutFeedback
+              key={index}
+              onPress={() => navigation.navigate("ProductDetails", items.id)}
+            >
               <View
                 style={{
                   borderBottomRightRadius: 20,
@@ -1088,6 +1163,11 @@ export default function MainPage({ navigation }) {
                 </View>
 
                 <TouchableOpacity
+                  onPress={() => {
+                    setData(items.key);
+                    setDataId(items.id);
+                    setAboutVisible(true);
+                  }}
                   style={{
                     position: "absolute",
                     right: 0,
@@ -1110,65 +1190,303 @@ export default function MainPage({ navigation }) {
     );
   };
 
+  const [numberValue, setNumber] = useState(1);
+  const [finalPrice, setFinalPrice] = useState("");
+
+  function getFinal() {
+    if (numberValue == 1) {
+      return data.Price;
+    } else {
+      return data.Price * numberValue;
+    }
+  }
+
+  function checkNum() {
+    setNumber(numberValue + 1);
+  }
+
+  function checkNum2() {
+    if (numberValue == 1) {
+    } else {
+      setNumber(numberValue - 1);
+    }
+  }
+
+  function customDesign() {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View style={styles.modalView}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity onPress={() => setAboutVisible(false)}>
+              <Icon
+                name="close"
+                size={20}
+                style={{
+                  marginLeft: 5,
+                  marginRight: 10,
+                  color: "white",
+                  backgroundColor: "red",
+                  borderRadius: 20,
+                }}
+              />
+            </TouchableOpacity>
+
+            <Text style={styles2.modalText}>Product</Text>
+            <View></View>
+          </View>
+
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
+            }}
+          />
+          <View>
+            <View style={{ flexDirection: "row", marginTop: 5 }}>
+              <RemoteImage
+                resizeMethod="auto"
+                resizeMode="stretch"
+                uri={data.Image}
+                desiredWidth={100}
+              />
+              <View style={{ alignSelf: "center", marginLeft: 10 }}>
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  {data.Name}
+                </Text>
+                <Text style={{ fontSize: 16, fontWeight: "400" }}>
+                  {data.Category}
+                </Text>
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ marginLeft: 10 }}>
+                <Text style={{ fontWeight: "700", fontSize: 17 }}>Price</Text>
+                <Text style={{ fontWeight: "700", fontSize: 25 }}>
+                  UGX {getFinal()}
+                </Text>
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TouchableOpacity onPress={() => checkNum2()}>
+                  <Icon
+                    name="remove-circle"
+                    style={{ color: "green" }}
+                    size={30}
+                  />
+                </TouchableOpacity>
+
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "800",
+                    marginLeft: 10,
+                    marginRight: 10,
+                  }}
+                >
+                  {numberValue}
+                </Text>
+                <TouchableOpacity onPress={() => checkNum()}>
+                  <Icon
+                    name="add-circle"
+                    style={{ color: "green" }}
+                    size={30}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity onPress={() => AddToCart(data)}>
+                <View
+                  style={{
+                    backgroundColor: COLORS.green_light,
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text
+                    style={{ color: "white", fontSize: 20, fontWeight: "800" }}
+                  >
+                    Add to Cart
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  function AddToCart() {
+    const itemsRef = db.ref("Cart/" + user.uid).push();
+    itemsRef
+      .set({
+        Name: data.Name,
+        Image: data.Image,
+        Price: getFinal(),
+        Quantity: numberValue,
+      })
+      .then(() => {
+        showToast("Item Added Succesfully");
+        setNumber(1);
+        setAboutVisible(false);
+      })
+      .catch((error) => showToast("Error while Adding " + error));
+  }
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            padding: 10,
-          }}
-        >
-          <View style={{ margin: 5 }}>
-            <Text style={{ fontSize: 15, fontWeight: "300" }}>Welcome</Text>
-            <Text style={{ fontSize: 20, fontWeight: "800" }}>
-              IBRAHIM MASEMBE
-            </Text>
-          </View>
-          <Image
-            source={require("../../assets/monkey.png")}
-            style={{ width: 50, height: 50 }}
-          />
-        </View>
-        <View
-          style={{
-            borderRadius: 20,
-            backgroundColor: "white",
-            padding: 10,
-            margin: 10,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Icon name="search" size={25} />
-          <TextInput
-            placeholder="Search Glocery"
-            onChangeText={(text) => searchFilterFunction(text)}
-            value={search}
-            underlineColorAndroid="transparent"
-            style={{ width: "80%", marginLeft: 10 }}
-          />
-        </View>
-
-        <View style={{ height: 50 }}>
-          <LoadCategory />
-        </View>
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-          {loading ? (
-            <Loader visible={loading} />
-          ) : showSelection ? (
-            clicked !== "All" ? (
-              <LoadSelection id={clicked} />
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              padding: 10,
+              marginTop: 10,
+            }}
+          >
+            <View style={{ margin: 5 }}>
+              <Text style={{ fontSize: 15, fontWeight: "300" }}>Welcome</Text>
+              <Text style={{ fontSize: 20, fontWeight: "800" }}>
+                {userName}
+              </Text>
+            </View>
+            {uImage ? (
+              <Image
+                source={{ uri: uImage }}
+                style={{ width: 50, height: 50, borderRadius: 30 }}
+              />
             ) : (
+              <Image
+                source={require("../../assets/monkey.png")}
+                style={{ width: 50, height: 50 }}
+              />
+            )}
+          </View>
+          <View
+            style={{
+              borderRadius: 20,
+              backgroundColor: "white",
+              padding: 10,
+              margin: 10,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Icon name="search" size={25} />
+            <TextInput
+              placeholder="Search Glocery"
+              onChangeText={(text) => searchFilterFunction(text)}
+              value={search}
+              underlineColorAndroid="transparent"
+              style={{ width: "80%", marginLeft: 10 }}
+            />
+          </View>
+
+          <View style={{ height: 50 }}>
+            <LoadCategory />
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+            {loading ? (
+              <Loader visible={loading} />
+            ) : showSelection ? (
+              clicked !== "All" ? (
+                <LoadSelection id={clicked} />
+              ) : (
+                <LoadAll />
+              )
+            ) : loadAll ? (
               <LoadAll />
-            )
-          ) : loadAll ? (
-            <LoadAll />
-          ) : showSearch ? (
-            <LoadSearch />
-          ) : null}
-        </ScrollView>
+            ) : showSearch ? (
+              <LoadSearch />
+            ) : null}
+          </ScrollView>
+        </View>
+        <View
+          style={{
+            padding: 10,
+            backgroundColor: "white",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            alignItems: "center",
+            height: 60,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.replace("MainPage")}
+            style={{
+              backgroundColor: "teal",
+              width: 80,
+              height: 40,
+              borderTopLeftRadius: 50,
+              borderBottomLeftRadius: 50,
+              borderTopRightRadius: 20,
+              borderBottomRightRadius: 20,
+              padding: 5,
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            <Icon name="home" size={30} style={{ color: "white" }} />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Icon name="filter-list" size={30} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{
+              padding: 5,
+              bottom: 20,
+              height: 60,
+              width: 60,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "red",
+              borderRadius: 30,
+            }}
+          >
+            <Icon
+              name="favorite"
+              size={40}
+              style={{
+                color: "white",
+                alignSelf: "center",
+              }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+            <Icon name="shopping-cart" size={30} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Icon name="account-circle" size={30} />
+          </TouchableOpacity>
+        </View>
+        <BottomSheet visible={aboutVisible} onBackButtonPress={toggleBottom}>
+          <View style={styles2.bottomNavigationView}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+              }}
+            >
+              {customDesign()}
+            </View>
+          </View>
+        </BottomSheet>
       </View>
     </SafeAreaView>
   );
@@ -1178,6 +1496,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#e8eaed",
+    flexDirection: "column",
   },
   header: {
     padding: 10,
@@ -1189,5 +1508,54 @@ const styles = StyleSheet.create({
     backgroundColor: "#dceffc",
     alignContent: "center",
     alignItems: "center",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+});
+
+const styles2 = StyleSheet.create({
+  bottomNavigationView: {
+    width: "100%",
+    position: "absolute",
+    backgroundColor: "grey",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 5,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "800",
   },
 });
