@@ -4,10 +4,10 @@
     "slug": "CityFoods",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/cityFoods.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/cityFoods.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -56,7 +56,7 @@
   
         ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/cityFoods.png",
         "backgroundColor": "#FFFFFF"
       }
     },

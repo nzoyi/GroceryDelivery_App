@@ -14,6 +14,8 @@ import { auth, firebase } from "../Connection/firebaseDB";
 import { db } from "../Connection/firebaseDB";
 
 import NetInfo from "@react-native-community/netinfo";
+import { Dimensions } from "react-native";
+import COLORS from "../../Colors/Colors";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -28,19 +30,22 @@ function showToast(msg) {
     AlertIOS.alert(msg);
   }
 }
-
+let deviceWidth = Dimensions.get("window").width;
+let deviceHeight = Dimensions.get("window").height;
 const SplashScreen = ({ navigation, route }) => {
   //const netInfo = useNetInfo();
 
   NetInfo.fetch().then((state) => {
     if (state.isConnected) {
       setTimeout(() => {
-        let user = firebase.auth().currentUser;
+        /*let user = firebase.auth().currentUser;
         if (user) {
           navigation.replace("MainPage");
         } else {
           navigation.replace("Login");
-        }
+        }*/
+
+        navigation.replace("MainPage");
       }, 5000);
     } else {
       showToast("Error No Internet Connection");
@@ -51,25 +56,32 @@ const SplashScreen = ({ navigation, route }) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: COLORS.lightorange,
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      <Image style={styles.image} source={require("../../assets/icon.png")} />
+      <Image
+        resizeMode="cover"
+        source={require("../../assets/cityFoods_no_bg.png")}
+        style={styles.image}
+      />
       <LottieView
         style={styles.Anime}
-        source={require("../../assets/loading-lottie.json")}
+        source={require("../../assets/shopping.json")}
         autoPlay
         loop={true}
-        width={200}
+        width={deviceWidth}
         resizeMode="contian"
         onAnimationFinish={() => {
           console.log("Animation Finished!");
           //this.props.navigation.replace('Login');
         }}
       />
+      <View style={{ position: "absolute", bottom: 5 }}>
+        <Text>Designed & Made Future Designs</Text>
+      </View>
     </View>
   );
 };
@@ -94,13 +106,13 @@ export function isConnected() {
 const styles = StyleSheet.create({
   Anime: {
     justifyContent: "center",
-    width: 200,
     alignItems: "center",
     alignContent: "center",
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
+    bottom: 50,
     alignContent: "center",
   },
 });
