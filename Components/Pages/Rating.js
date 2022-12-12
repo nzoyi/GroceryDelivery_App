@@ -38,6 +38,7 @@ function showToast(msg) {
 export default function Rating({ id }) {
   const [maxRates, setMaxRates] = useState([]);
   const [total1, setTotal1] = useState();
+  const [stars, setStars] = useState(0);
 
   const itemsRef4 = db.ref("ItemsList/" + id + "/Rating/");
 
@@ -91,9 +92,9 @@ export default function Rating({ id }) {
         <StarRating
           rating={finalAnswer}
           starSize={25}
-          enableHalfStar={false}
+          enableHalfStar={true}
           enableSwiping={false}
-          // onChange={setRating}
+          onChange={setStars}
         />
       </View>
     );

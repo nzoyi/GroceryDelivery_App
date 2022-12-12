@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -71,6 +71,7 @@ export default function MainPage({ navigation }) {
 
   const [itemArray, setItemArray] = useState([]);
   const [itemArray2, setItemArray2] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const itemsRef2 = db.ref("ItemsList/");
 
@@ -86,6 +87,7 @@ export default function MainPage({ navigation }) {
           });
         });
         setItemArray(itemArray);
+        setLoading(false);
       }
     });
     return () => {
@@ -103,13 +105,16 @@ export default function MainPage({ navigation }) {
         snapshot.forEach((child) => {
           let dataVal = child.val();
           if (child.child("Rating").exists()) {
-            console.log("true");
+            itemArray2.push({
+              id: child.key,
+              key: child.val(),
+            });
           } else {
-            console.log("false");
+            //console.log("false");
           }
         });
         setItemArray2(itemArray2);
-        //console.log(itemArray2);
+        setLoading(false);
       }
     });
     return () => {
@@ -193,6 +198,72 @@ export default function MainPage({ navigation }) {
   };
 
   const [clicked, setClicked] = useState("All");
+  const [showSelection, setShowSelection] = useState(false);
+  const [loadAll, setLoadAll] = useState(true);
+  var myArray = ["Women", "Men", "Kids", "Pregnant"];
+
+  var randomItem = myArray[Math.floor(Math.random() * myArray.length)];
+  const [newName, setnewName] = useState("");
+
+  const shuffle = useCallback(() => {
+    const index = Math.floor(Math.random() * myArray.length);
+    setnewName(myArray[index]);
+  }, []);
+
+  useEffect(() => {
+    const intervalID = setInterval(shuffle, 20000);
+    return () => clearInterval(intervalID);
+  }, [shuffle]);
+
+  function checkState() {
+    if (clicked == "All") {
+      setShowSelection(false);
+      setLoadAll(true);
+    } else {
+      setShowSelection(true);
+      setLoadAll(false);
+    }
+  }
+
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+
+  const searchFilterFunction = (text) => {
+    if (text) {
+      const newData = itemArray.filter(function (item) {
+        const itemData = item.key.Name ? item.key.Name : "";
+        return itemData.indexOf(text) > -1;
+      });
+
+      if (clicked == "All") {
+        setFilteredDataSource(newData);
+      } else {
+        const newData2 = newData.filter(function (item) {
+          const itemData = item.key.Category ? item.key.Category : "";
+          return itemData.indexOf(clicked) > -1;
+        });
+        setFilteredDataSource(newData2);
+      }
+
+      setSearch(text);
+      setShowSearch(true);
+      setShowSelection(false);
+      setLoadAll(false);
+    } else {
+      setFilteredDataSource(itemArray);
+      setSearch(text);
+      if (clicked == "All") {
+        setShowSearch(false);
+        setShowSelection(false);
+        setLoadAll(true);
+      } else {
+        setShowSearch(false);
+        setShowSelection(true);
+        setLoadAll(false);
+      }
+    }
+  };
 
   const LoadCategory = () => {
     return (
@@ -204,6 +275,7 @@ export default function MainPage({ navigation }) {
                 key={index}
                 onPress={() => {
                   setClicked(item.id);
+                  checkState();
                 }}
               >
                 <Text
@@ -236,6 +308,7 @@ export default function MainPage({ navigation }) {
                 key={index}
                 onPress={() => {
                   setClicked(item.id);
+                  checkState();
                 }}
               >
                 <Text
@@ -252,14 +325,40 @@ export default function MainPage({ navigation }) {
     );
   };
 
+  //Show Indicator
+  const Loader = ({ visible = true }) => {
+    return (
+      visible && (
+        <View
+          style={{
+            marginHorizontal: 50,
+            borderRadius: 5,
+            flexDirection: "row",
+            alignItems: "center",
+            alignSelf: "center",
+          }}
+        >
+          <ActivityIndicator
+            size="small"
+            animating={true}
+            color={COLORS.blue}
+          />
+          <Text style={{ marginLeft: 10, fontSize: 18, fontWeight: "700" }}>
+            Loading Data...
+          </Text>
+        </View>
+      )
+    );
+  };
+
   const LoadList = () => {
     return (
       <View>
         <ScrollView showsHorizontalScrollIndicator={false} horizontal={true}>
-          {itemArray
+          {itemArray2
             .map(function (items, index) {
               return index < 6 ? (
-                <TouchableOpacity key={index}>
+                <TouchableWithoutFeedback key={index}>
                   <View
                     style={{
                       borderRadius: 20,
@@ -304,7 +403,7 @@ export default function MainPage({ navigation }) {
                         UGX {items.key.Price}
                       </Text>
                       <Rating id={items.id} />
-                      <View
+                      <TouchableOpacity
                         style={{
                           position: "absolute",
                           alignSelf: "flex-end",
@@ -317,10 +416,10 @@ export default function MainPage({ navigation }) {
                         }}
                       >
                         <Icon name="add-shopping-cart" size={25} />
-                      </View>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
               ) : null;
             })
             .filter((x) => x)}
@@ -343,7 +442,7 @@ export default function MainPage({ navigation }) {
           {newData2
             .map((items, index) => {
               return index < 6 ? (
-                <TouchableOpacity key={index}>
+                <TouchableWithoutFeedback key={index}>
                   <View
                     style={{
                       borderBottomRightRadius: 20,
@@ -361,7 +460,7 @@ export default function MainPage({ navigation }) {
                       desiredWidth={100}
                     />
 
-                    <View
+                    <TouchableOpacity
                       style={{
                         position: "absolute",
                         alignSelf: "flex-end",
@@ -374,7 +473,7 @@ export default function MainPage({ navigation }) {
                       }}
                     >
                       <Icon name="add-shopping-cart" size={25} />
-                    </View>
+                    </TouchableOpacity>
 
                     <View
                       style={{
@@ -417,7 +516,7 @@ export default function MainPage({ navigation }) {
                       </Text>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
               ) : null;
             })
             .filter((x) => x)}
@@ -439,7 +538,7 @@ export default function MainPage({ navigation }) {
           {newData2
             .map((items, index) => {
               return index < 6 ? (
-                <TouchableOpacity key={index}>
+                <TouchableWithoutFeedback key={index}>
                   <View
                     style={{
                       borderRadius: 20,
@@ -486,7 +585,7 @@ export default function MainPage({ navigation }) {
                       >
                         UGX {items.key.Price}
                       </Text>
-                      <View
+                      <TouchableOpacity
                         style={{
                           position: "absolute",
                           alignSelf: "flex-end",
@@ -499,13 +598,513 @@ export default function MainPage({ navigation }) {
                         }}
                       >
                         <Icon name="add-shopping-cart" size={25} />
-                      </View>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
               ) : null;
             })
             .filter((x) => x)}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  //Tips
+  const LoadTips = () => {
+    if (newName == "Women") {
+      return (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+              Health Tips
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: "#eb0eac",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={require("../../assets/women_pc.jpg")}
+              borderTopLeftRadius={10}
+              borderBottomLeftRadius={10}
+              style={{
+                borderWidth: 1,
+                width: 150,
+                height: 150,
+              }}
+            />
+            <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                HEALTHY DIET{"(WOMEN)"}
+              </Text>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                lots of fruits, vegetables, nuts, seeds, whole grains, and
+                healthy fats such as olive oil
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    } else if (newName == "Pregnant") {
+      return (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+              Health Tips
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: "green",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={require("../../assets/pregnant_pc.jpg")}
+              borderTopLeftRadius={10}
+              borderBottomLeftRadius={10}
+              style={{
+                borderWidth: 1,
+                width: 150,
+                height: 150,
+              }}
+            />
+            <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                HEALTHY DIET{"(PREGNANT WOMEN)"}
+              </Text>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                beans. pulses. fish. eggs. meat {"(but avoid liver)"}
+                poultry. nuts.
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    } else if (newName == "Kids") {
+      return (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+              Health Tips
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: COLORS.purple,
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={require("../../assets/kids_pc.jpg")}
+              borderTopLeftRadius={10}
+              borderBottomLeftRadius={10}
+              style={{
+                borderWidth: 1,
+                width: 150,
+                height: 150,
+              }}
+            />
+            <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                HEALTHY DIET{"(KIDS)"}
+              </Text>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                Cauliflower 'nachos' with cucumber salsa · Vegetable fried rice
+                with egg ribbons · Fish nuggets with avocado and pea dip
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    } else if (newName == "Men") {
+      return (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+              Health Tips
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: "teal",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={require("../../assets/men_pc.jpg")}
+              borderTopLeftRadius={10}
+              borderBottomLeftRadius={10}
+              style={{
+                borderWidth: 1,
+                width: 150,
+                height: 150,
+              }}
+            />
+            <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                HEALTHY DIET{"(MEN)"}
+              </Text>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                Lean ham, fish like salmon or haddock, as well as lower fat
+                dairy or dairy-free alternatives, Gnuts, Water Melons etc. To
+                boost Immuity and Sexual Energy
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    }
+  };
+
+  //Load Selection
+  const LoadSelection = ({ id }) => {
+    const newData = itemArray.sort((a, b) => b.key.Price - a.key.Price);
+
+    const newData2 = newData.filter(function (item) {
+      const itemData = item.key.Category ? item.key.Category : "";
+      return itemData.indexOf(id) > -1;
+    });
+
+    return (
+      <View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {newData2.map((items, index) => (
+            <TouchableWithoutFeedback key={index}>
+              <View
+                style={{
+                  borderBottomRightRadius: 20,
+                  borderTopLeftRadius: 20,
+                  backgroundColor: "white",
+                  flexDirection: "row",
+                  margin: 5,
+                }}
+              >
+                <RemoteImage2
+                  resizeMethod="auto"
+                  resizeMode="stretch"
+                  uri={items.key.Image}
+                  desiredWidth={100}
+                />
+
+                <View
+                  style={{
+                    alignSelf: "center",
+                    justifyContent: "center",
+                    left: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "700",
+                      marginLeft: 10,
+                      bottom: 15,
+                    }}
+                  >
+                    {items.key.Name}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "300",
+                      marginLeft: 10,
+                      bottom: 15,
+                    }}
+                  >
+                    {items.key.Category}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "300",
+                      marginLeft: 10,
+                      bottom: 15,
+                      color: "green",
+                    }}
+                  >
+                    UGX {items.key.Price}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    backgroundColor: "orange",
+                    alignSelf: "center",
+                    width: 80,
+                    alignItems: "center",
+                    borderTopLeftRadius: 10,
+                    borderBottomLeftRadius: 10,
+                    padding: 5,
+                  }}
+                >
+                  <Icon name="add-shopping-cart" size={25} />
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const LoadAll = () => {
+    return (
+      <View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            Rated
+          </Text>
+          <TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginRight: 10,
+                color: "green",
+              }}
+            >
+              View All
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <LoadList />
+        </View>
+
+        <View style={{ marginTop: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+              Recommended
+            </Text>
+            <TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "800",
+                  marginRight: 10,
+                  color: "green",
+                }}
+              >
+                View All
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <LoadList2 />
+        </View>
+
+        <View style={{ marginTop: 10 }}>
+          <LoadTips />
+        </View>
+
+        <View style={{ marginTop: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+              Cereals
+            </Text>
+            <TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "800",
+                  marginRight: 10,
+                  color: "green",
+                }}
+              >
+                View All
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <LoadList3 />
+        </View>
+      </View>
+    );
+  };
+
+  const LoadSearch = () => {
+    return (
+      <View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {filteredDataSource.map((items, index) => (
+            <TouchableWithoutFeedback key={index}>
+              <View
+                style={{
+                  borderBottomRightRadius: 20,
+                  borderTopLeftRadius: 20,
+                  backgroundColor: "white",
+                  flexDirection: "row",
+                  margin: 5,
+                }}
+              >
+                <RemoteImage2
+                  resizeMethod="auto"
+                  resizeMode="stretch"
+                  uri={items.key.Image}
+                  desiredWidth={100}
+                />
+
+                <View
+                  style={{
+                    alignSelf: "center",
+                    justifyContent: "center",
+                    left: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "700",
+                      marginLeft: 10,
+                      bottom: 15,
+                    }}
+                  >
+                    {items.key.Name}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "300",
+                      marginLeft: 10,
+                      bottom: 15,
+                    }}
+                  >
+                    {items.key.Category}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "300",
+                      marginLeft: 10,
+                      bottom: 15,
+                      color: "green",
+                    }}
+                  >
+                    UGX {items.key.Price}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    backgroundColor: "orange",
+                    alignSelf: "center",
+                    width: 80,
+                    alignItems: "center",
+                    borderTopLeftRadius: 10,
+                    borderBottomLeftRadius: 10,
+                    padding: 5,
+                  }}
+                >
+                  <Icon name="add-shopping-cart" size={25} />
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          ))}
         </ScrollView>
       </View>
     );
@@ -522,8 +1121,10 @@ export default function MainPage({ navigation }) {
           }}
         >
           <View style={{ margin: 5 }}>
-            <Text style={{ fontSize: 25, fontWeight: "800" }}>Welcome</Text>
-            <Text>IBRAHIM MASEMBE</Text>
+            <Text style={{ fontSize: 15, fontWeight: "300" }}>Welcome</Text>
+            <Text style={{ fontSize: 20, fontWeight: "800" }}>
+              IBRAHIM MASEMBE
+            </Text>
           </View>
           <Image
             source={require("../../assets/monkey.png")}
@@ -543,6 +1144,9 @@ export default function MainPage({ navigation }) {
           <Icon name="search" size={25} />
           <TextInput
             placeholder="Search Glocery"
+            onChangeText={(text) => searchFilterFunction(text)}
+            value={search}
+            underlineColorAndroid="transparent"
             style={{ width: "80%", marginLeft: 10 }}
           />
         </View>
@@ -550,75 +1154,20 @@ export default function MainPage({ navigation }) {
         <View style={{ height: 50 }}>
           <LoadCategory />
         </View>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
-              Rated
-            </Text>
-            <TouchableOpacity>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "800",
-                  marginRight: 10,
-                  color: "green",
-                }}
-              >
-                View All
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View>
-            <LoadList />
-          </View>
-
-          <View style={{ marginTop: 10 }}>
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
-                Recommended
-              </Text>
-              <TouchableOpacity>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "800",
-                    marginRight: 10,
-                    color: "green",
-                  }}
-                >
-                  View All
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <LoadList2 />
-          </View>
-
-          <View style={{ marginTop: 10 }}>
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
-                Cereals
-              </Text>
-              <TouchableOpacity>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "800",
-                    marginRight: 10,
-                    color: "green",
-                  }}
-                >
-                  View All
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <LoadList3 />
-          </View>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+          {loading ? (
+            <Loader visible={loading} />
+          ) : showSelection ? (
+            clicked !== "All" ? (
+              <LoadSelection id={clicked} />
+            ) : (
+              <LoadAll />
+            )
+          ) : loadAll ? (
+            <LoadAll />
+          ) : showSearch ? (
+            <LoadSearch />
+          ) : null}
         </ScrollView>
       </View>
     </SafeAreaView>
