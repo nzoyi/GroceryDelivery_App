@@ -330,7 +330,7 @@ export default function MainPage({ navigation }) {
                   style={{
                     color: "#0fd93e",
                     textTransform: "uppercase",
-                    fontSize: 18,
+                    fontSize: 10,
                     alignItems: "center",
                     alignSelf: "center",
                   }}
@@ -347,7 +347,12 @@ export default function MainPage({ navigation }) {
               >
                 <Text
                   key={index}
-                  style={{ color: "#464a4a", fontSize: 16, margin: 10 }}
+                  style={{
+                    color: "#464a4a",
+                    fontSize: 16,
+                    margin: 10,
+                    color: "white",
+                  }}
                 >
                   {item.value}
                 </Text>
@@ -451,7 +456,7 @@ export default function MainPage({ navigation }) {
                         style={{
                           position: "absolute",
                           alignSelf: "flex-end",
-                          backgroundColor: "orange",
+                          backgroundColor: "#0fa614",
                           width: 40,
                           alignItems: "flex-end",
                           borderTopLeftRadius: 10,
@@ -459,7 +464,11 @@ export default function MainPage({ navigation }) {
                           padding: 5,
                         }}
                       >
-                        <Icon name="add-shopping-cart" size={25} />
+                        <Icon
+                          name="add-shopping-cart"
+                          size={25}
+                          style={{ color: "white" }}
+                        />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -518,7 +527,7 @@ export default function MainPage({ navigation }) {
                       style={{
                         position: "absolute",
                         alignSelf: "flex-end",
-                        backgroundColor: "orange",
+                        backgroundColor: "#0fa614",
                         width: 40,
                         alignItems: "flex-end",
                         borderTopRightRadius: 10,
@@ -526,7 +535,11 @@ export default function MainPage({ navigation }) {
                         padding: 5,
                       }}
                     >
-                      <Icon name="add-shopping-cart" size={25} />
+                      <Icon
+                        name="add-shopping-cart"
+                        size={25}
+                        style={{ color: "white" }}
+                      />
                     </TouchableOpacity>
 
                     <View
@@ -653,7 +666,7 @@ export default function MainPage({ navigation }) {
                         style={{
                           position: "absolute",
                           alignSelf: "flex-end",
-                          backgroundColor: "orange",
+                          backgroundColor: "#0fa614",
                           width: 40,
                           alignItems: "flex-end",
                           borderTopLeftRadius: 10,
@@ -661,7 +674,11 @@ export default function MainPage({ navigation }) {
                           padding: 5,
                         }}
                       >
-                        <Icon name="add-shopping-cart" size={25} />
+                        <Icon
+                          name="add-shopping-cart"
+                          size={25}
+                          style={{ color: "white" }}
+                        />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -685,7 +702,14 @@ export default function MainPage({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
               Health Tips
             </Text>
           </View>
@@ -742,7 +766,14 @@ export default function MainPage({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
               Health Tips
             </Text>
           </View>
@@ -799,7 +830,14 @@ export default function MainPage({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
               Health Tips
             </Text>
           </View>
@@ -856,7 +894,14 @@ export default function MainPage({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
               Health Tips
             </Text>
           </View>
@@ -899,7 +944,7 @@ export default function MainPage({ navigation }) {
               >
                 Lean ham, fish like salmon or haddock, as well as lower fat
                 dairy or dairy-free alternatives, Gnuts, Water Melons etc. To
-                boost Immuity and Sexual Energy
+                boost Immunity and Sexual Energy
               </Text>
             </View>
           </View>
@@ -990,7 +1035,7 @@ export default function MainPage({ navigation }) {
                   style={{
                     position: "absolute",
                     right: 0,
-                    backgroundColor: "orange",
+                    backgroundColor: "#0fa614",
                     alignSelf: "center",
                     width: 80,
                     alignItems: "center",
@@ -999,7 +1044,11 @@ export default function MainPage({ navigation }) {
                     padding: 5,
                   }}
                 >
-                  <Icon name="add-shopping-cart" size={25} />
+                  <Icon
+                    name="add-shopping-cart"
+                    size={25}
+                    style={{ color: "white" }}
+                  />
                 </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
@@ -1018,10 +1067,17 @@ export default function MainPage({ navigation }) {
             justifyContent: "space-between",
           }}
         >
-          <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "800",
+              marginLeft: 10,
+              color: "white",
+            }}
+          >
             Rated
           </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("AllProducts")}>
             <Text
               style={{
                 fontSize: 18,
@@ -1045,10 +1101,19 @@ export default function MainPage({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
               Recommended
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AllProducts")}
+            >
               <Text
                 style={{
                   fontSize: 18,
@@ -1075,10 +1140,19 @@ export default function MainPage({ navigation }) {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "800", marginLeft: 10 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
               Grains
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AllProducts")}
+            >
               <Text
                 style={{
                   fontSize: 18,
@@ -1171,7 +1245,7 @@ export default function MainPage({ navigation }) {
                   style={{
                     position: "absolute",
                     right: 0,
-                    backgroundColor: "orange",
+                    backgroundColor: "#0fa614",
                     alignSelf: "center",
                     width: 80,
                     alignItems: "center",
@@ -1180,7 +1254,11 @@ export default function MainPage({ navigation }) {
                     padding: 5,
                   }}
                 >
-                  <Icon name="add-shopping-cart" size={25} />
+                  <Icon
+                    name="add-shopping-cart"
+                    size={25}
+                    style={{ color: "white" }}
+                  />
                 </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
@@ -1331,6 +1409,7 @@ export default function MainPage({ navigation }) {
     const itemsRef = db.ref("Cart/" + user.uid).push();
     itemsRef
       .set({
+        id: dataId,
         Name: data.Name,
         Image: data.Image,
         Price: getFinal(),
@@ -1343,6 +1422,7 @@ export default function MainPage({ navigation }) {
       })
       .catch((error) => showToast("Error while Adding " + error));
   }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -1356,22 +1436,26 @@ export default function MainPage({ navigation }) {
             }}
           >
             <View style={{ margin: 5 }}>
-              <Text style={{ fontSize: 15, fontWeight: "300" }}>Welcome</Text>
-              <Text style={{ fontSize: 20, fontWeight: "800" }}>
+              <Text style={{ fontSize: 15, fontWeight: "300", color: "white" }}>
+                Welcome
+              </Text>
+              <Text style={{ fontSize: 20, fontWeight: "800", color: "white" }}>
                 {userName}
               </Text>
             </View>
-            {uImage ? (
-              <Image
-                source={{ uri: uImage }}
-                style={{ width: 50, height: 50, borderRadius: 30 }}
-              />
-            ) : (
-              <Image
-                source={require("../../assets/monkey.png")}
-                style={{ width: 50, height: 50 }}
-              />
-            )}
+            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+              {uImage ? (
+                <Image
+                  source={{ uri: uImage }}
+                  style={{ width: 50, height: 50, borderRadius: 30 }}
+                />
+              ) : (
+                <Image
+                  source={require("../../assets/monkey.png")}
+                  style={{ width: 50, height: 50 }}
+                />
+              )}
+            </TouchableOpacity>
           </View>
           <View
             style={{
@@ -1424,22 +1508,8 @@ export default function MainPage({ navigation }) {
             height: 60,
           }}
         >
-          <TouchableOpacity
-            onPress={() => navigation.replace("MainPage")}
-            style={{
-              backgroundColor: "teal",
-              width: 80,
-              height: 40,
-              borderTopLeftRadius: 50,
-              borderBottomLeftRadius: 50,
-              borderTopRightRadius: 20,
-              borderBottomRightRadius: 20,
-              padding: 5,
-              justifyContent: "center",
-              alignItems: "flex-end",
-            }}
-          >
-            <Icon name="home" size={30} style={{ color: "white" }} />
+          <TouchableOpacity onPress={() => navigation.replace("MainPage")}>
+            <Icon name="home" size={30} style={{ color: "#0fa614" }} />
           </TouchableOpacity>
 
           <TouchableOpacity>
@@ -1454,7 +1524,7 @@ export default function MainPage({ navigation }) {
               width: 60,
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "red",
+              backgroundColor: "#0fa614",
               borderRadius: 30,
             }}
           >
@@ -1471,7 +1541,7 @@ export default function MainPage({ navigation }) {
           <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
             <Icon name="shopping-cart" size={30} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
             <Icon name="account-circle" size={30} />
           </TouchableOpacity>
         </View>
@@ -1495,7 +1565,7 @@ export default function MainPage({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e8eaed",
+    backgroundColor: "#111211",
     flexDirection: "column",
   },
   header: {

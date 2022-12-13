@@ -19,8 +19,6 @@ import {
   Modal,
 } from "react-native";
 
-import StarRating from "react-native-star-rating-widget";
-
 function showToast(msg) {
   if (Platform.OS === "android") {
     ToastAndroid.showWithGravityAndOffset(
@@ -35,10 +33,11 @@ function showToast(msg) {
   }
 }
 
-export default function ShowCalc({ item }) {
-  //console.log(item.Price);
+export default function ShowCalc({ item, itemid }) {
   const [numberValue, setNumber] = useState(item.Quantity);
   const [finalPrice, setFinalPrice] = useState("");
+
+  let user = firebase.auth().currentUser;
 
   function getNumber() {
     //console.log(Quantity);
@@ -46,25 +45,44 @@ export default function ShowCalc({ item }) {
     return numberValue;
   }
 
+  let origin = parseInt(item.Price);
+  var getDa = origin / item.Quantity;
+
   function getFinal() {
-    let original = item.Price / numberValue;
-    console.log(original);
     if (numberValue == 1) {
-      return original;
+      return getDa;
     } else {
-      return original * numberValue;
+      return getDa * numberValue;
     }
   }
 
   function checkNum() {
     setNumber(numberValue + 1);
+
+    //changeData(numberValue + 1);
   }
 
   function checkNum2() {
     if (numberValue == 1) {
     } else {
       setNumber(numberValue - 1);
+
+      //changeData(numberValue - 1);
     }
+  }
+
+  useEffect(() => {
+    if (numberValue == item.Quantity) {
+    } else {
+      changeData();
+    }
+  }, [numberValue]);
+
+  function changeData() {
+    const itemsRef = db.ref("Cart/" + user.uid + "/" + itemid);
+    itemsRef.child("Price").set(getFinal());
+
+    itemsRef.child("Quantity").set(numberValue);
   }
 
   return (

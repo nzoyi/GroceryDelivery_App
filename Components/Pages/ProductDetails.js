@@ -39,6 +39,8 @@ import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating2";
 
+import StarRating from "react-native-star-rating-widget";
+
 function showToast(msg) {
   if (Platform.OS === "android") {
     ToastAndroid.showWithGravityAndOffset(
@@ -54,6 +56,12 @@ function showToast(msg) {
 }
 
 export default function ProductDetails({ navigation, route }) {
+  let user = firebase.auth().currentUser;
+
+  if (!user) {
+    navigation.replace("Login");
+  }
+
   function handleBackButtonClick() {
     navigation.goBack();
     return true;
@@ -76,6 +84,7 @@ export default function ProductDetails({ navigation, route }) {
   const [itemDescription, setItemDescription] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [itemCategory, setItemCategory] = useState("");
+  const [rating, setRating] = useState(0);
 
   const itemsRef = db.ref("ItemsList/" + pId);
 
@@ -100,6 +109,7 @@ export default function ProductDetails({ navigation, route }) {
 
   useEffect(() => {
     ItemImages();
+    GetRating2();
   }, []);
 
   const itemsRef2 = db.ref("ItemsList/");
@@ -159,7 +169,7 @@ export default function ProductDetails({ navigation, route }) {
           padding: 10,
         }}
       >
-        <Text style={{ fontSize: 16, fontWeight: "600" }}>Recommended</Text>
+        <Text style={{ fontSize: 16, fontWeight: "600" }}>Related</Text>
         <ScrollView showsHorizontalScrollIndicator={false} horizontal={true}>
           {newData
             .map((items, index) => {
@@ -276,6 +286,110 @@ export default function ProductDetails({ navigation, route }) {
     }
   }
 
+  function AddToCart() {
+    const itemsRef = db.ref("Cart/" + user.uid).push();
+    itemsRef
+      .set({
+        id: pId,
+        Name: itemName,
+        Image: image,
+        Price: getFinal(),
+        Quantity: numberValue,
+      })
+      .then(() => {
+        showToast("Item Added Succesfully");
+        navigation.navigate("Cart");
+        setNumber(1);
+      })
+      .catch((error) => showToast("Error while Adding " + error));
+  }
+
+  const [total1, setTotal1] = useState();
+  const [maxRates, setMaxRates] = useState([]);
+
+  const itemsRef4 = db.ref("ItemsList/" + pId + "/Rating/");
+
+  function GetRating2() {
+    let isMounted = true;
+    itemsRef4.on("value", (snapshot) => {
+      if (isMounted) {
+        let maxRates = [];
+        let total1 = 0;
+        snapshot.forEach((child) => {
+          let dataVal = child.val();
+          maxRates.push({
+            rating: dataVal.rating,
+          });
+        });
+        total1 += snapshot.numChildren();
+        setTotal1(total1);
+        setMaxRates(maxRates);
+        //console.log(maxRates);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
+  function getTotalRating() {
+    let numb = 0;
+    let numb2;
+    let numb3;
+    var finalAnswer;
+    let getTotal = parseInt(total1);
+
+    if (maxRates.length == 0) {
+      finalAnswer = "0";
+    } else {
+      maxRates.map((items) => {
+        numb += items.rating;
+        numb2 = numb / 5;
+        numb3 = (numb2 / getTotal) * 5;
+      });
+      finalAnswer = (Math.round(numb3 * 100) / 100).toFixed(1);
+    }
+
+    return (
+      <View style={{}}>
+        <Text
+          style={{
+            color: COLORS.red_500,
+            fontWeight: "600",
+          }}
+        >
+          Rating {finalAnswer} Star{"s"}
+        </Text>
+      </View>
+    );
+  }
+
+  if (user !== null) {
+    const itemsRef3 = db.ref("ItemsList/" + pId + "/Rating/" + user.uid);
+
+    useEffect(() => {
+      let isMounted = true;
+      itemsRef3.on("value", (snapshot) => {
+        if (isMounted) {
+          if (snapshot.exists()) {
+            let dataVal = snapshot.val();
+            setRating(dataVal.rating);
+          } else {
+            setRating(0);
+          }
+        }
+      });
+      return () => {
+        isMounted = false;
+      };
+    }, []);
+  }
+
+  if (rating && user !== null) {
+    const itemsRef = db.ref("ItemsList/" + pId + "/Rating/" + user.uid);
+    itemsRef.child("rating").set(rating);
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -288,7 +402,7 @@ export default function ProductDetails({ navigation, route }) {
               resizeMode="stretch"
               style={{
                 height: 400,
-                backgroundColor: "#f2a65a",
+                backgroundColor: "#0fa614",
                 borderBottomLeftRadius: 30,
                 borderBottomRightRadius: 250,
                 elevation: 10,
@@ -306,7 +420,7 @@ export default function ProductDetails({ navigation, route }) {
                     name="keyboard-arrow-left"
                     size={30}
                     style={{
-                      backgroundColor: "#f2a65a",
+                      backgroundColor: "#0fa614",
                       padding: 10,
                       borderRadius: 10,
                       color: "white",
@@ -318,7 +432,7 @@ export default function ProductDetails({ navigation, route }) {
                   name="favorite"
                   size={30}
                   style={{
-                    backgroundColor: "#f2a65a",
+                    backgroundColor: "#0fa614",
                     padding: 10,
                     borderRadius: 10,
                     color: "white",
@@ -384,6 +498,39 @@ export default function ProductDetails({ navigation, route }) {
               </Text>
             </View>
             <ShowOthers />
+
+            <View
+              style={{
+                marginTop: 10,
+                padding: 10,
+                marginBottom: 10,
+                backgroundColor: COLORS.whiteTextColor,
+                elevation: 5,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={{ fontWeight: "bold" }}>Ratings</Text>
+                {getTotalRating()}
+              </View>
+              <Text style={{ alignSelf: "center", fontWeight: "bold" }}>
+                ~Show ❤️ Some ❤️ Love~
+              </Text>
+
+              <View style={{ alignSelf: "center" }}>
+                <StarRating
+                  rating={rating}
+                  starSize={40}
+                  enableHalfStar={false}
+                  enableSwiping={false}
+                  onChange={setRating}
+                />
+              </View>
+            </View>
           </ScrollView>
           <View
             style={{
@@ -401,7 +548,7 @@ export default function ProductDetails({ navigation, route }) {
                 UGX {getFinal()}
               </Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => AddToCart()}>
               <View
                 style={{
                   backgroundColor: COLORS.green_light,

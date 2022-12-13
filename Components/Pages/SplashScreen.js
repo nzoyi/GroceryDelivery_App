@@ -45,7 +45,7 @@ const SplashScreen = ({ navigation, route }) => {
           //navigation.replace("Login");
           navigation.replace("HomePage");
         }
-      }, 1000);
+      }, 5000);
     } else {
       showToast("Error No Internet Connection");
     }

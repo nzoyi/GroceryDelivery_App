@@ -92,7 +92,6 @@ export default function Cart({ navigation, route }) {
           });
         });
         setItemArray(itemArray);
-        // console.log(itemArray);
       }
     });
     return () => {
@@ -103,36 +102,6 @@ export default function Cart({ navigation, route }) {
   useEffect(() => {
     ItemImages();
   }, []);
-
-  const [numberValue, setNumber] = useState(1);
-  const [finalPrice, setFinalPrice] = useState("");
-
-  function getNumber(Quantity) {
-    //console.log(Quantity);
-    setNumber(Quantity);
-    return numberValue;
-  }
-
-  function getFinal(Price) {
-    var origin = Price / numberValue;
-    if (numberValue == 1) {
-      return origin;
-    } else {
-      return origin * numberValue;
-    }
-  }
-
-  function checkNum(Quantity) {
-    console.log(Quantity);
-    setNumber(Quantity + 1);
-  }
-
-  function checkNum2(Quantity) {
-    if (Quantity == 1) {
-    } else {
-      setNumber(Quantity - 1);
-    }
-  }
 
   const ShowCart = () => {
     return (
@@ -151,8 +120,8 @@ export default function Cart({ navigation, route }) {
             <Image
               source={{ uri: items.key.Image }}
               style={{
-                width: 150,
-                height: 150,
+                width: 100,
+                height: 100,
                 borderRadius: 10,
               }}
             />
@@ -164,13 +133,24 @@ export default function Cart({ navigation, route }) {
                 {items.key.Name}
               </Text>
 
-              <ShowCalc item={items.key} />
+              <ShowCalc item={items.key} itemid={items.id} />
             </View>
           </View>
         ))}
       </View>
     );
   };
+
+  function getTotal() {
+    let PriceNumber;
+
+    PriceNumber = itemArray.reduce(
+      (sum, product) => sum + product.key.Price,
+      0
+    );
+    return PriceNumber;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -196,6 +176,95 @@ export default function Cart({ navigation, route }) {
           <ScrollView showsVerticalScrollIndicator={false}>
             {itemArray.length > 0 ? <ShowCart /> : null}
           </ScrollView>
+          <View style={{ minHeight: 100, backgroundColor: "white" }}>
+            <View
+              style={{
+                backgroundColor: "#e6edf0",
+                elevation: 5,
+                borderRadius: 5,
+                padding: 10,
+                marginLeft: 20,
+                marginRight: 20,
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: -20,
+              }}
+            >
+              <Icon
+                name="loyalty"
+                size={30}
+                style={{
+                  color: "blue",
+                  transform: [{ scaleX: -1 }],
+                  alignSelf: "flex-start",
+                }}
+              />
+              <TextInput
+                placeholder="Add Promo Code"
+                placeholderTextColor={"black"}
+                style={styles.searchInputContainer}
+              />
+              <Icon
+                name="arrow-forward-ios"
+                size={20}
+                style={{
+                  color: "blue",
+                  alignSelf: "flex-end",
+                  padding: 5,
+                  backgroundColor: "white",
+                  right: 10,
+                  borderRadius: 20,
+                }}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                margin: 20,
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                Total Price
+              </Text>
+              <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                UGX {getTotal()}
+              </Text>
+            </View>
+            <View
+              style={{
+                justifyContent: "space-between",
+                flexDirection: "row",
+                marginLeft: 20,
+                marginRight: 20,
+                marginBottom: 10,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "blue", fontSize: 20, fontWeight: "700" }}>
+                Cancel
+              </Text>
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  backgroundColor: "blue",
+                  borderRadius: 20,
+                  width: 250,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 20,
+                    fontWeight: "700",
+                    textAlign: "center",
+                  }}
+                >
+                  Place Order
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -212,6 +281,12 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#f9f9f9",
     elevation: 15,
+  },
+  searchInputContainer: {
+    width: "90%",
+    height: 30,
+    color: "black",
+    fontSize: 18,
   },
   body: {
     height: "50%",
