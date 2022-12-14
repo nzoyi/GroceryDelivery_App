@@ -30,12 +30,12 @@ const OnBoardingScreen = ({ navigation }) => {
         translucent={false}
       />
       <Onboarding
-        //onSkip={() => navigation.replace("Login")}
-        //onDone={() => navigation.navigate("Login")}
+        onSkip={() => navigation.replace("Login")}
+        onDone={() => navigation.navigate("Login")}
         DoneButtonComponent={Done}
         pages={[
           {
-            backgroundColor: "#3544a6",
+            backgroundColor: "#eb9b13",
             image: (
               <Image
                 source={require("../../assets/fruits.png")}
@@ -48,7 +48,7 @@ const OnBoardingScreen = ({ navigation }) => {
               "Choose the Best on demand products. High Quality is what you need and it all we got to offer. Clean and Fresh Farm Produce at your disposal",
           },
           {
-            backgroundColor: "#0b102e",
+            backgroundColor: "#e30e63",
             image: (
               <Image
                 source={require("../../assets/low-price.png")}
@@ -61,7 +61,7 @@ const OnBoardingScreen = ({ navigation }) => {
               "No Hustle. No Hard Work. Just Low Prices. Get all your Fruits/Vegetable/Food staff at the lowest prices possible.",
           },
           {
-            backgroundColor: "#252f6e",
+            backgroundColor: "#0e8ae3",
             image: (
               <Image
                 source={require("../../assets/delivery.png")}

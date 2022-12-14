@@ -390,6 +390,40 @@ export default function ProductDetails({ navigation, route }) {
     itemsRef.child("rating").set(rating);
   }
 
+  function setFavorite() {
+    let isValid = true;
+
+    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
+    itemsRef3.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        isValid = false;
+      } else {
+        isValid = true;
+      }
+    });
+
+    if (isValid) {
+      const itemsRef = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
+      itemsRef.child("id").set(pId);
+    } else {
+      const itemsRef = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
+      itemsRef.remove();
+    }
+  }
+
+  const [fav, setFav] = useState(false);
+
+  useEffect(() => {
+    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
+    itemsRef3.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        setFav(true);
+      } else {
+        setFav(false);
+      }
+    });
+  }, []);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -428,16 +462,31 @@ export default function ProductDetails({ navigation, route }) {
                   />
                 </TouchableOpacity>
 
-                <Icon
-                  name="favorite"
-                  size={30}
-                  style={{
-                    backgroundColor: "#0fa614",
-                    padding: 10,
-                    borderRadius: 10,
-                    color: "white",
-                  }}
-                />
+                <TouchableOpacity onPress={() => setFavorite()}>
+                  {fav == true ? (
+                    <Icon
+                      name="favorite"
+                      size={30}
+                      style={{
+                        backgroundColor: "red",
+                        padding: 10,
+                        borderRadius: 10,
+                        color: "white",
+                      }}
+                    />
+                  ) : (
+                    <Icon
+                      name="favorite"
+                      size={30}
+                      style={{
+                        backgroundColor: "#0fa614",
+                        padding: 10,
+                        borderRadius: 10,
+                        color: "white",
+                      }}
+                    />
+                  )}
+                </TouchableOpacity>
               </View>
             </ImageBackground>
             <View

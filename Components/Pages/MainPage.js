@@ -38,6 +38,7 @@ import { LogBox } from "react-native";
 import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating";
+import { isValid } from "date-fns";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -146,9 +147,29 @@ export default function MainPage({ navigation }) {
     };
   }
 
+  const [numProducts, setNumProducts] = useState("");
+
+  const itemsRef3 = db.ref("Cart/" + user.uid);
+
+  function itemCart() {
+    let isMounted = true;
+    itemsRef3.on("value", (snapshot) => {
+      if (isMounted) {
+        let total1 = 0;
+        total1 += snapshot.numChildren();
+
+        setNumProducts(total1);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
   useEffect(() => {
     getUserData();
     ItemImages();
+    itemCart();
     ItemImages2();
   }, []);
 
@@ -382,7 +403,14 @@ export default function MainPage({ navigation }) {
             animating={true}
             color={COLORS.blue}
           />
-          <Text style={{ marginLeft: 10, fontSize: 18, fontWeight: "700" }}>
+          <Text
+            style={{
+              marginLeft: 10,
+              fontSize: 18,
+              fontWeight: "700",
+              color: "white",
+            }}
+          >
             Loading Data...
           </Text>
         </View>
@@ -1075,7 +1103,7 @@ export default function MainPage({ navigation }) {
               color: "white",
             }}
           >
-            Rated
+            Recommended
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate("AllProducts")}>
             <Text
@@ -1109,7 +1137,7 @@ export default function MainPage({ navigation }) {
                 color: "white",
               }}
             >
-              Recommended
+              Fruits
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate("AllProducts")}
@@ -1406,21 +1434,45 @@ export default function MainPage({ navigation }) {
   }
 
   function AddToCart() {
-    const itemsRef = db.ref("Cart/" + user.uid).push();
-    itemsRef
-      .set({
-        id: dataId,
-        Name: data.Name,
-        Image: data.Image,
-        Price: getFinal(),
-        Quantity: numberValue,
-      })
-      .then(() => {
-        showToast("Item Added Succesfully");
-        setNumber(1);
-        setAboutVisible(false);
-      })
-      .catch((error) => showToast("Error while Adding " + error));
+    let isValid = true;
+    const itemsRef2 = db.ref("Cart/" + user.uid + "/");
+
+    itemsRef2.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        snapshot.forEach((child) => {
+          let dataVal = child.val();
+
+          if (dataVal.id == dataId) {
+            isValid = false;
+          } else {
+            isValid = true;
+          }
+        });
+      } else {
+        isValid = true;
+      }
+    });
+
+    if (isValid) {
+      const itemsRef = db.ref("Cart/" + user.uid).push();
+      itemsRef
+        .set({
+          id: dataId,
+          Name: data.Name,
+          Image: data.Image,
+          Price: getFinal(),
+          Quantity: numberValue,
+        })
+        .then(() => {
+          showToast("Item Added Succesfully");
+          setNumber(1);
+          setAboutVisible(false);
+        })
+        .catch((error) => showToast("Error while Adding " + error));
+    } else {
+      showToast("Product already Exists!..");
+      navigation.navigate("Cart");
+    }
   }
 
   return (
@@ -1512,8 +1564,8 @@ export default function MainPage({ navigation }) {
             <Icon name="home" size={30} style={{ color: "#0fa614" }} />
           </TouchableOpacity>
 
-          <TouchableOpacity>
-            <Icon name="filter-list" size={30} />
+          <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
+            <Icon name="search" size={30} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1539,7 +1591,28 @@ export default function MainPage({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-            <Icon name="shopping-cart" size={30} />
+            <View>
+              <Icon name="shopping-cart" size={30} />
+              {numProducts ? (
+                <Text
+                  style={{
+                    backgroundColor: "red",
+                    borderRadius: 10,
+                    width: 20,
+                    padding: 5,
+                    position: "absolute",
+                    fontSize: 12,
+                    color: "white",
+                    left: 15,
+                    bottom: 15,
+                    textAlign: "center",
+                    alignSelf: "center",
+                  }}
+                >
+                  {numProducts}
+                </Text>
+              ) : null}
+            </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
             <Icon name="account-circle" size={30} />
@@ -1565,7 +1638,7 @@ export default function MainPage({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111211",
+    backgroundColor: "#131414",
     flexDirection: "column",
   },
   header: {
