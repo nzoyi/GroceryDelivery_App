@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OnBoardingScreen from "./Components/Pages/OnboardingScreen";
 import SearchPage from "./Components/Pages/SearchPage";
+import Favorite from "./Components/Pages/Favorite";
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ export default function App() {
           <Screen name="AllProducts" component={AllProducts}></Screen>
           <Screen name="Profile" component={Profile}></Screen>
           <Screen name="SearchPage" component={SearchPage}></Screen>
+          <Screen name="Favorite" component={Favorite}></Screen>
         </Navigator>
       </NavigationContainer>
     );
@@ -66,6 +68,7 @@ export default function App() {
           <Screen name="AllProducts" component={AllProducts}></Screen>
           <Screen name="Profile" component={Profile}></Screen>
           <Screen name="SearchPage" component={SearchPage}></Screen>
+          <Screen name="Favorite" component={Favorite}></Screen>
         </Navigator>
       </NavigationContainer>
     );

@@ -247,6 +247,7 @@ export default function MainPage({ navigation }) {
   const [showSelection, setShowSelection] = useState(false);
   const [loadAll, setLoadAll] = useState(true);
   var myArray = ["Women", "Men", "Kids", "Pregnant"];
+  var myArray2 = ["Refer", "Wallet"];
 
   var randomItem = myArray[Math.floor(Math.random() * myArray.length)];
   const [newName, setnewName] = useState("");
@@ -260,6 +261,18 @@ export default function MainPage({ navigation }) {
     const intervalID = setInterval(shuffle, 20000);
     return () => clearInterval(intervalID);
   }, [shuffle]);
+
+  const [newName2, setnewName2] = useState("");
+
+  const shuffle2 = useCallback(() => {
+    const index = Math.floor(Math.random() * myArray2.length);
+    setnewName2(myArray2[index]);
+  }, []);
+
+  useEffect(() => {
+    const intervalID = setInterval(shuffle2, 20000);
+    return () => clearInterval(intervalID);
+  }, [shuffle2]);
 
   function checkState(id) {
     //console.log(id);
@@ -719,6 +732,105 @@ export default function MainPage({ navigation }) {
     );
   };
 
+  const LoadList4 = () => {
+    const newData = itemArray.sort((a, b) => b.key.Price - a.key.Price);
+
+    const newData2 = newData.filter(function (item) {
+      const itemData = item.key.Category ? item.key.Category : "";
+      return itemData.indexOf("Vegetables") > -1;
+    });
+    return (
+      <View>
+        <ScrollView showsHorizontalScrollIndicator={false} horizontal={true}>
+          {newData2
+            .map((items, index) => {
+              return index < 6 ? (
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() =>
+                    navigation.navigate("ProductDetails", items.id)
+                  }
+                >
+                  <View
+                    style={{
+                      borderRadius: 20,
+                      backgroundColor: "white",
+                      margin: 5,
+                    }}
+                  >
+                    <RemoteImage
+                      resizeMethod="auto"
+                      resizeMode="stretch"
+                      uri={items.key.Image}
+                      desiredWidth={200}
+                    />
+
+                    <View style={{ marginTop: 10 }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: "700",
+                          marginLeft: 10,
+                          bottom: 15,
+                        }}
+                      >
+                        {items.key.Name}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "300",
+                          marginLeft: 10,
+                          bottom: 15,
+                        }}
+                      >
+                        {items.key.Category}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "300",
+                          marginLeft: 10,
+                          bottom: 15,
+                          color: "green",
+                        }}
+                      >
+                        UGX {items.key.Price}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setData(items.key);
+                          setDataId(items.id);
+                          setAboutVisible(true);
+                        }}
+                        style={{
+                          position: "absolute",
+                          alignSelf: "flex-end",
+                          backgroundColor: "#0fa614",
+                          width: 40,
+                          alignItems: "flex-end",
+                          borderTopLeftRadius: 10,
+                          borderBottomLeftRadius: 10,
+                          padding: 5,
+                        }}
+                      >
+                        <Icon
+                          name="add-shopping-cart"
+                          size={25}
+                          style={{ color: "white" }}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              ) : null;
+            })
+            .filter((x) => x)}
+        </ScrollView>
+      </View>
+    );
+  };
+
   //Tips
   const LoadTips = () => {
     if (newName == "Women") {
@@ -758,7 +870,7 @@ export default function MainPage({ navigation }) {
               style={{
                 borderWidth: 1,
                 width: 150,
-                height: 150,
+                height: 180,
               }}
             />
             <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
@@ -822,7 +934,7 @@ export default function MainPage({ navigation }) {
               style={{
                 borderWidth: 1,
                 width: 150,
-                height: 150,
+                height: 180,
               }}
             />
             <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
@@ -886,7 +998,7 @@ export default function MainPage({ navigation }) {
               style={{
                 borderWidth: 1,
                 width: 150,
-                height: 150,
+                height: 180,
               }}
             />
             <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
@@ -950,7 +1062,7 @@ export default function MainPage({ navigation }) {
               style={{
                 borderWidth: 1,
                 width: 150,
-                height: 150,
+                height: 180,
               }}
             />
             <View style={{ margin: 10, alignSelf: "center", flex: 1 }}>
@@ -974,6 +1086,174 @@ export default function MainPage({ navigation }) {
                 dairy or dairy-free alternatives, Gnuts, Water Melons etc. To
                 boost Immunity and Sexual Energy
               </Text>
+            </View>
+          </View>
+        </View>
+      );
+    }
+  };
+
+  const LoadTips2 = () => {
+    if (newName2 == "Refer") {
+      return (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
+              Boost Appetite
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: "white",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={require("../../assets/discount-Coupon.jpg")}
+              borderTopLeftRadius={10}
+              borderBottomLeftRadius={10}
+              resizeMode="center"
+              style={{
+                borderWidth: 1,
+                width: 150,
+                height: 180,
+              }}
+            />
+            <View style={{ margin: 10, flex: 1 }}>
+              <Text
+                style={{
+                  color: "red",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                REFER & EARN
+              </Text>
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                Refer a minimum of 5 people to City Foods App and earn your self
+                a 10% off coupon for 10 products you order.
+              </Text>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "green",
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontWeight: "800",
+                  }}
+                >
+                  INVITE NOW
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      );
+    } else if (newName2 == "Wallet") {
+      return (
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
+              Boost Appetite
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: "#07a5b8",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={require("../../assets/digital_wallet.jpg")}
+              borderTopLeftRadius={10}
+              borderBottomLeftRadius={10}
+              style={{
+                borderWidth: 1,
+                width: 150,
+                height: 180,
+              }}
+            />
+            <View style={{ margin: 10, flex: 1 }}>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                WALLET
+              </Text>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                Create a Wallet! Make Payments Easy on the Go. Deposit and Let
+                your wallet do the shopping for you. Get 5% Off with a Wallet
+                Payment.
+              </Text>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#e8b20e",
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontWeight: "800",
+                  }}
+                >
+                  GET WALLET
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -1089,6 +1369,10 @@ export default function MainPage({ navigation }) {
   const LoadAll = () => {
     return (
       <View>
+        <View style={{ marginTop: 10 }}>
+          <LoadTips2 />
+        </View>
+
         <View
           style={{
             flexDirection: "row",
@@ -1105,7 +1389,9 @@ export default function MainPage({ navigation }) {
           >
             Recommended
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("AllProducts")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AllProducts", "Recommended")}
+          >
             <Text
               style={{
                 fontSize: 18,
@@ -1140,7 +1426,7 @@ export default function MainPage({ navigation }) {
               Fruits
             </Text>
             <TouchableOpacity
-              onPress={() => navigation.navigate("AllProducts")}
+              onPress={() => navigation.navigate("AllProducts", "Fruits")}
             >
               <Text
                 style={{
@@ -1179,7 +1465,7 @@ export default function MainPage({ navigation }) {
               Grains
             </Text>
             <TouchableOpacity
-              onPress={() => navigation.navigate("AllProducts")}
+              onPress={() => navigation.navigate("AllProducts", "Grains")}
             >
               <Text
                 style={{
@@ -1194,6 +1480,41 @@ export default function MainPage({ navigation }) {
             </TouchableOpacity>
           </View>
           <LoadList3 />
+        </View>
+
+        <View style={{ marginTop: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                marginLeft: 10,
+                color: "white",
+              }}
+            >
+              Vegetables
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AllProducts", "Vegetables")}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "800",
+                  marginRight: 10,
+                  color: "green",
+                }}
+              >
+                View All
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <LoadList4 />
         </View>
       </View>
     );
@@ -1475,6 +1796,19 @@ export default function MainPage({ navigation }) {
     }
   }
 
+  const [fav, setFav] = useState(false);
+
+  useEffect(() => {
+    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
+    itemsRef3.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        setFav(true);
+      } else {
+        setFav(false);
+      }
+    });
+  }, []);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -1568,29 +1902,63 @@ export default function MainPage({ navigation }) {
             <Icon name="search" size={30} />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{
-              padding: 5,
-              bottom: 20,
-              height: 60,
-              width: 60,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#0fa614",
-              borderRadius: 30,
-            }}
-          >
-            <Icon
-              name="favorite"
-              size={40}
-              style={{
-                color: "white",
-                alignSelf: "center",
-              }}
-            />
-          </TouchableOpacity>
+          {fav == true ? (
+            <TouchableWithoutFeedback
+              onPress={() => navigation.navigate("Favorite")}
+            >
+              <View
+                style={{
+                  padding: 5,
+                  bottom: 20,
+                  height: 60,
+                  width: 60,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "red",
+                  borderRadius: 20,
+                  borderWidth: 5,
+                  borderColor: "white",
+                }}
+              >
+                <Icon
+                  name="favorite"
+                  size={40}
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                  }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          ) : (
+            <TouchableOpacity onPress={() => navigation.navigate("Favorite")}>
+              <View
+                style={{
+                  padding: 5,
+                  bottom: 20,
+                  height: 60,
+                  width: 60,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#0fa614",
+                  borderRadius: 20,
+                  borderWidth: 5,
+                  borderColor: "white",
+                }}
+              >
+                <Icon
+                  name="favorite"
+                  size={40}
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+          <TouchableWithoutFeedback onPress={() => navigation.navigate("Cart")}>
             <View>
               <Icon name="shopping-cart" size={30} />
               {numProducts ? (
@@ -1613,7 +1981,7 @@ export default function MainPage({ navigation }) {
                 </Text>
               ) : null}
             </View>
-          </TouchableOpacity>
+          </TouchableWithoutFeedback>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
             <Icon name="account-circle" size={30} />
           </TouchableOpacity>

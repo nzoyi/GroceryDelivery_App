@@ -176,7 +176,9 @@ export default function Cart({ navigation, route }) {
           <ScrollView showsVerticalScrollIndicator={false}>
             {itemArray.length > 0 ? <ShowCart /> : null}
           </ScrollView>
-          <View style={{ minHeight: 100, backgroundColor: "white" }}>
+          <View
+            style={{ minHeight: 100, backgroundColor: "white", marginTop: 20 }}
+          >
             <View
               style={{
                 backgroundColor: "#e6edf0",

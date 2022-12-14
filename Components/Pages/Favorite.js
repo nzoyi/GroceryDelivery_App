@@ -78,21 +78,57 @@ export default function Favorite({ navigation }) {
 
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref("ItemsList/");
+  const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
 
   function ItemImages() {
     let isMounted = true;
     itemsRef2.on("value", (snapshot) => {
       if (isMounted) {
         var itemArray = [];
-        snapshot.forEach((child) => {
-          itemArray.push({
-            id: child.key,
-            key: child.val(),
+
+        if (snapshot.exists()) {
+          snapshot.forEach((child) => {
+            let dataVal = child.val();
+
+            //console.log(dataVal.id);
+            const itemsRef = db.ref("ItemsList/");
+
+            itemsRef
+              .orderByKey()
+              .equalTo(dataVal.id)
+              .on("value", (snapshot) => {
+                snapshot.forEach((child) => {
+                  itemArray.push({
+                    id: child.key,
+                    key: child.val(),
+                  });
+
+                  //console.log(child.val());
+                  setItemArray(itemArray);
+                  setFilteredDataSource(itemArray);
+                });
+              });
           });
-        });
-        setItemArray(itemArray);
-        setFilteredDataSource(itemArray);
+        }
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
+  const [numProducts, setNumProducts] = useState("");
+
+  const itemsRef3 = db.ref("Cart/" + user.uid);
+
+  function itemCart() {
+    let isMounted = true;
+    itemsRef3.on("value", (snapshot) => {
+      if (isMounted) {
+        let total1 = 0;
+        total1 += snapshot.numChildren();
+
+        setNumProducts(total1);
       }
     });
     return () => {
@@ -102,6 +138,7 @@ export default function Favorite({ navigation }) {
 
   useEffect(() => {
     ItemImages();
+    itemCart();
   }, []);
 
   const [search, setSearch] = useState("");
@@ -110,7 +147,7 @@ export default function Favorite({ navigation }) {
 
   const searchFilterFunction = (text) => {
     if (text) {
-      const newData = itemArray.filter(function (item) {
+      const newData = filteredDataSource.filter(function (item) {
         const itemData = item.key.Name ? item.key.Name : "";
         return itemData.indexOf(text) > -1;
       });
@@ -123,6 +160,150 @@ export default function Favorite({ navigation }) {
       setSearch(text);
     }
   };
+
+  const searchFilterFunction2 = (text) => {
+    if (text) {
+      const newData = filteredDataSource.sort(
+        (a, b) => a.key.Price - b.key.Price
+      );
+
+      setFilteredDataSource(newData);
+
+      setSearch(text);
+    } else {
+      setFilteredDataSource(itemArray);
+      setSearch(text);
+    }
+  };
+
+  const RemoteImage2 = ({ uri, desiredWidth }) => {
+    const [desiredHeight, setDesiredHeight] = React.useState(0);
+
+    Image.getSize(uri, (width, height) => {
+      setDesiredHeight((desiredWidth / width) * height);
+    });
+
+    return (
+      <Image
+        source={{ uri }}
+        borderTopLeftRadius={20}
+        style={{
+          borderWidth: 1,
+          width: desiredWidth,
+          height: desiredWidth,
+          alignSelf: "center",
+        }}
+      />
+    );
+  };
+
+  function setFavorite(pId) {
+    let isValid = true;
+    const itemsRef = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
+    itemsRef.remove();
+  }
+
+  const ShowAll = () => {
+    return (
+      <View>
+        {filteredDataSource.map((items, index) => (
+          <TouchableWithoutFeedback
+            key={index}
+            onPress={() => navigation.navigate("ProductDetails", items.id)}
+          >
+            <View
+              style={{
+                borderBottomRightRadius: 20,
+                borderTopLeftRadius: 20,
+                backgroundColor: "white",
+                flexDirection: "row",
+                margin: 5,
+              }}
+            >
+              <RemoteImage2
+                resizeMethod="auto"
+                resizeMode="stretch"
+                uri={items.key.Image}
+                desiredWidth={100}
+              />
+
+              <View
+                style={{
+                  alignSelf: "center",
+                  justifyContent: "center",
+                  left: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "700",
+                    marginLeft: 10,
+                    bottom: 15,
+                  }}
+                >
+                  {items.key.Name}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "300",
+                    marginLeft: 10,
+                    bottom: 15,
+                  }}
+                >
+                  {items.key.Category}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "300",
+                    marginLeft: 10,
+                    bottom: 15,
+                    color: "green",
+                  }}
+                >
+                  UGX {items.key.Price}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setFavorite(items.id);
+                }}
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  backgroundColor: "red",
+                  alignSelf: "center",
+                  width: 80,
+                  alignItems: "center",
+                  borderTopLeftRadius: 10,
+                  borderBottomLeftRadius: 10,
+                  padding: 5,
+                }}
+              >
+                <Icon name="favorite" size={25} style={{ color: "white" }} />
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
+        ))}
+      </View>
+    );
+  };
+
+  const [fav, setFav] = useState(false);
+
+  useEffect(() => {
+    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
+    itemsRef3.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        setFav(true);
+      } else {
+        setFav(false);
+      }
+    });
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -173,7 +354,9 @@ export default function Favorite({ navigation }) {
           {
             //Body
           }
-          <ScrollView showsVerticalScrollIndicator={false}></ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <ShowAll />
+          </ScrollView>
         </View>
 
         {
@@ -199,28 +382,61 @@ export default function Favorite({ navigation }) {
             <Icon name="search" size={30} />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={{
-              padding: 5,
-              bottom: 20,
-              height: 60,
-              width: 60,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#0fa614",
-              borderRadius: 30,
-            }}
-            onPress={() => navigation.replace("SearchPage")}
-          >
-            <Icon
-              name="favorite"
-              size={40}
-              style={{
-                color: "white",
-                alignSelf: "center",
-              }}
-            />
-          </TouchableOpacity>
+          {fav == true ? (
+            <TouchableWithoutFeedback
+              onPress={() => navigation.navigate("Favorite")}
+            >
+              <View
+                style={{
+                  padding: 5,
+                  bottom: 20,
+                  height: 60,
+                  width: 60,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "red",
+                  borderRadius: 20,
+                  borderWidth: 5,
+                  borderColor: "white",
+                }}
+              >
+                <Icon
+                  name="favorite"
+                  size={40}
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                  }}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          ) : (
+            <TouchableOpacity onPress={() => navigation.navigate("Favorite")}>
+              <View
+                style={{
+                  padding: 5,
+                  bottom: 20,
+                  height: 60,
+                  width: 60,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#0fa614",
+                  borderRadius: 20,
+                  borderWidth: 5,
+                  borderColor: "white",
+                }}
+              >
+                <Icon
+                  name="favorite"
+                  size={40}
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
             <View>
