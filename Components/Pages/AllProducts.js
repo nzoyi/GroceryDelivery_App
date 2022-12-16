@@ -63,6 +63,12 @@ export default function AllProducts({ navigation, route }) {
 
   const [filteredDataSource, setFilteredDataSource] = useState([]);
 
+  let user = firebase.auth().currentUser;
+
+  if (!user) {
+    navigation.replace("Login");
+  }
+
   const itemsRef2 = db.ref("ItemsList/");
 
   function ItemImages() {
@@ -594,6 +600,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#dceffc",
     alignContent: "center",
     alignItems: "center",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 

@@ -163,7 +163,7 @@ export default function Profile({ navigation, route }) {
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Orders")}>
             <View
               style={{
                 flexDirection: "row",

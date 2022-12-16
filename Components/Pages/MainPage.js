@@ -246,7 +246,8 @@ export default function MainPage({ navigation }) {
   const [clicked, setClicked] = useState("All");
   const [showSelection, setShowSelection] = useState(false);
   const [loadAll, setLoadAll] = useState(true);
-  var myArray = ["Women", "Men", "Kids", "Pregnant"];
+
+  /*var myArray = ["Women", "Men", "Kids", "Pregnant"];
   var myArray2 = ["Refer", "Wallet"];
 
   var randomItem = myArray[Math.floor(Math.random() * myArray.length)];
@@ -272,7 +273,7 @@ export default function MainPage({ navigation }) {
   useEffect(() => {
     const intervalID = setInterval(shuffle2, 20000);
     return () => clearInterval(intervalID);
-  }, [shuffle2]);
+  }, [shuffle2]);*/
 
   function checkState(id) {
     //console.log(id);
@@ -1371,9 +1372,7 @@ export default function MainPage({ navigation }) {
   const LoadAll = () => {
     return (
       <View>
-        <View style={{ marginTop: 10 }}>
-          <LoadTips2 />
-        </View>
+        <View style={{ marginTop: 10 }}>{/*<LoadTips2 />*/}</View>
 
         <View
           style={{
@@ -1445,9 +1444,7 @@ export default function MainPage({ navigation }) {
           <LoadList2 />
         </View>
 
-        <View style={{ marginTop: 10 }}>
-          <LoadTips />
-        </View>
+        <View style={{ marginTop: 10 }}>{/*<LoadTips />*/}</View>
 
         <View style={{ marginTop: 10 }}>
           <View
