@@ -7,6 +7,7 @@ import {
   AppState,
   BackHandler,
   TouchableWithoutFeedback,
+  Linking,
 } from "react-native";
 import Constants from "expo-constants";
 import COLORS from "../../Colors/Colors";
@@ -51,6 +52,24 @@ function showToast(msg) {
     );
   } else {
     AlertIOS.alert(msg);
+  }
+}
+
+function OpenWhatsapp(link) {
+  if (link) {
+    Linking.canOpenURL(link)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert(
+            "Please install whatsapp to send direct message via whatsapp"
+          );
+        } else {
+          return Linking.openURL(link);
+        }
+      })
+      .catch((err) => console.error("An error occurred", err));
+  } else {
+    Alert.alert("sendWhatsAppMessage -----> ", "message link is undefined");
   }
 }
 
@@ -108,7 +127,7 @@ export default function Profile({ navigation, route }) {
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("UserProfile")}>
             <View
               style={{
                 flexDirection: "row",
@@ -248,7 +267,7 @@ export default function Profile({ navigation, route }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("UserProfile")}>
             <View
               style={{
                 flexDirection: "row",
@@ -302,7 +321,15 @@ export default function Profile({ navigation, route }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              OpenWhatsapp(
+                "whatsapp://send?text=Hello, I am " +
+                  userName +
+                  ", I am requesting for assistance from City Foods App Team.&phone=+256751883325"
+              )
+            }
+          >
             <View
               style={{
                 margin: 20,

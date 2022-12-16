@@ -137,7 +137,7 @@ export default function Orders({ navigation, route }) {
                     onPress={() =>
                       cancelOrder({
                         Payment: items.key.PaymentMethod,
-                        Status: items.key.Status,
+                        id: items.id,
                       })
                     }
                   >
@@ -150,7 +150,7 @@ export default function Orders({ navigation, route }) {
                     onPress={() =>
                       cancelOrder({
                         Payment: items.key.PaymentMethod,
-                        Status: items.key.Status,
+                        id: items.id,
                       })
                     }
                   >
@@ -171,18 +171,14 @@ export default function Orders({ navigation, route }) {
             <View style={{ flexDirection: "column", marginTop: 10 }}>
               <Text>Payment Method {items.key.PaymentMethod}</Text>
               <Text style={{ fontWeight: "500" }}>
-                Charge Fee : {items.key.Charge}
+                Charge Price : UGX{" "}
+                <CalcPrice p1={items.key.Amount} p3={items.key.TransportFee} />
               </Text>
               <Text style={{ fontWeight: "500" }}>
-                Transport Fee : {items.key.TransportFee}
+                Transport Fee : UGX {items.key.TransportFee}
               </Text>
               <Text style={{ fontSize: 16, fontWeight: "700" }}>
-                Total Price : UGX{" "}
-                <CalcPrice
-                  p1={items.key.Amount}
-                  p2={items.key.Charge}
-                  p3={items.key.TransportFee}
-                />
+                Total Price : UGX{items.key.Amount}
               </Text>
               {items.key.Status == "Pending" ? (
                 <Text style={{ color: "blue", fontWeight: "700" }}>
@@ -208,17 +204,34 @@ export default function Orders({ navigation, route }) {
     );
   };
 
-  const CalcPrice = ({ p1, p2, p3 }) => {
-    return p1 + p2 + p3;
+  const CalcPrice = ({ p1, p3 }) => {
+    return p1 - p3;
   };
 
-  function cancelOrder({ Payment, Status }) {
+  function cancelOrder({ Payment, id }) {
     if (Payment == "MobileMoney") {
       Alert.alert("Caution", "Mobile Money orders cannot be cancelled! Sorry", [
         { text: "OK" },
       ]);
     } else if (Payment != "MobileMoney") {
+      Alert.alert("Delete Cart", "Are you sure you want to cancel Order?", [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "Yes", onPress: () => deleteItem2(id) },
+      ]);
     }
+  }
+
+  function deleteItem2(id) {
+    const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Orders/" + id);
+    itemsRef2
+      .child("Status")
+      .set("Cancelled")
+      .then(showToast("Cancelled Successfully"))
+      .catch((error) => showToast("Error" + error));
   }
 
   return (

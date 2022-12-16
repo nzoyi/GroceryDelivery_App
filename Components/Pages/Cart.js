@@ -33,11 +33,7 @@ import { TextInput } from "react-native";
 import { StatusBar } from "react-native";
 import { SafeAreaView } from "react-native";
 import { BottomSheet } from "react-native-btr";
-import moment from "moment";
-import { LogBox } from "react-native";
-import * as Location from "expo-location";
-import { ActivityIndicator } from "react-native-paper";
-import Rating from "./Rating2";
+import { PayWithFlutterwave } from "flutterwave-react-native";
 import ShowCalc from "./ShowCalc";
 
 function showToast(msg) {
@@ -196,13 +192,21 @@ export default function Cart({ navigation, route }) {
   function getTotal() {
     let PriceNumber;
 
-    PriceNumber = itemArray.reduce(
-      (sum, product) => sum + product.key.Price,
-      0
-    );
-    let math = promoPerc / 100;
-    let math2 = PriceNumber * math;
-    return PriceNumber - math2 + 5000;
+    if (promoPerc > 0) {
+      PriceNumber = itemArray.reduce(
+        (sum, product) => sum + product.key.Price,
+        0
+      );
+      let math = promoPerc / 100;
+      let math2 = PriceNumber * math;
+      return PriceNumber - math2 + 5000;
+    } else {
+      PriceNumber = itemArray.reduce(
+        (sum, product) => sum + product.key.Price,
+        0
+      );
+      return PriceNumber + 5000;
+    }
   }
 
   //Custome Design
@@ -284,16 +288,23 @@ export default function Cart({ navigation, route }) {
               <Text style={{ fontSize: 18 }}>Local Address</Text>
               <Text style={{ fontSize: 18 }}>{address3}</Text>
             </View>
-            <Text
-              style={{
-                fontSize: 18,
-                color: "blue",
-                margin: 10,
-                alignSelf: "flex-end",
+            <TouchableOpacity
+              onPress={() => {
+                setAboutVisible(false);
+                navigation.navigate("UserProfile");
               }}
             >
-              Edit
-            </Text>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: "blue",
+                  margin: 10,
+                  alignSelf: "flex-end",
+                }}
+              >
+                Edit
+              </Text>
+            </TouchableOpacity>
           </View>
           <View
             style={{
@@ -332,24 +343,46 @@ export default function Cart({ navigation, route }) {
                   CASH ON DELIVERY
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "orange",
-                  borderRadius: 5,
-                  color: "white",
-                  padding: 10,
+
+              <PayWithFlutterwave
+                onRedirect={handleOnRedirect}
+                options={{
+                  tx_ref: generateTransactionRef(10),
+                  authorization:
+                    "FLWPUBK_TEST-6c690d975ff8679b836e037833bb3487-X",
+                  customer: {
+                    email: "" + user?.email,
+                    name: username,
+                    phonenumber: phone,
+                  },
+                  amount: getTotal(),
+                  currency: "UGX",
+                  payment_options: "mobilemoney,card",
                 }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: "white",
-                    fontWeight: "800",
-                  }}
-                >
-                  MOBILE MONEY
-                </Text>
-              </TouchableOpacity>
+                customButton={(props) => (
+                  <TouchableOpacity
+                    onPress={props.onPress}
+                    isBusy={props.isInitializing}
+                    disabled={props.disabled}
+                    style={{
+                      backgroundColor: "orange",
+                      borderRadius: 5,
+                      color: "white",
+                      padding: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        fontWeight: "800",
+                      }}
+                    >
+                      MOBILE MONEY
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
             </View>
           </View>
         </View>
@@ -359,13 +392,41 @@ export default function Cart({ navigation, route }) {
 
   //Finish Payment
 
+  const generateTransactionRef = (length: number) => {
+    var result = "";
+    var characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return `flw_tx_ref_${result}`;
+  };
+
+  interface RedirectParams {
+    status: "successful" | "cancelled";
+    transaction_id?: string;
+    tx_ref: string;
+  }
+
+  const handleOnRedirect = (data: RedirectParams) => {
+    const getStatus = data.status;
+    console.log(getStatus);
+    if (getStatus == "successful") {
+      showToast("Payment Succesfull Check Email..");
+      console.log(data);
+      OrderNow2();
+    } else {
+      showToast("Error while Making Payment. Try Again");
+    }
+  };
+
   const recKey = db.ref("UserAccounts/" + user.uid + "/Orders/").push().key;
 
   const date = new Date().toLocaleString();
 
   function OrderNow() {
     const itemsRef6 = db.ref("Cart/" + user.uid);
-
     itemArray.map((items) => {
       const itemsRef = db
         .ref("UserAccounts/" + user.uid + "/Orders/" + recKey + "/Items")
@@ -375,7 +436,6 @@ export default function Cart({ navigation, route }) {
         .set(items.key)
         .then(() => {
           if (promoPerc > 0) {
-            //console.log("yes")
             const itemsRef3 = db.ref("PromoCodes/" + promoId + "/" + user.uid);
             itemsRef3.child(user.uid).set(true);
 
@@ -395,11 +455,97 @@ export default function Cart({ navigation, route }) {
           itemsRef3
             .child("TransportFee")
             .set(5000)
+            .then(console.log("firstUpload"))
+            .catch((error) => showToast("error" + error));
+        })
+        .catch((error) => showToast("Error" + error));
+
+      const adminRef = db.ref("Admin/Orders/" + recKey + "/Items").push();
+
+      adminRef
+        .set(items.key)
+        .then(() => {
+          const itemsRef3 = db.ref("Admin/Orders/" + recKey);
+          itemsRef3.child("Date").set("" + date);
+          itemsRef3.child("UserId").set(user.uid);
+          itemsRef3.child("Amount").set(getTotal());
+          itemsRef3.child("PaymentMethod").set("Cash On Delivery");
+          itemsRef3.child("Status").set("Pending");
+          itemsRef3.child("Name").set(username);
+          itemsRef3.child("Phone").set(phone);
+          itemsRef3.child("Location").set(address2 + " - " + address3);
+          itemsRef3
+            .child("TransportFee")
+            .set(5000)
             .then(() => {
-              /*  itemsRef6
+              itemsRef6
                 .remove()
                 .then(() => navigation.navigate("Orders"))
-                .catch((error) => showToast("Error" + error));*/
+                .catch((error) => showToast("Error" + error));
+            })
+            .catch((error) => showToast("error" + error));
+        })
+        .catch((error) => showToast("Error" + error));
+    });
+  }
+
+  function OrderNow2() {
+    const itemsRef6 = db.ref("Cart/" + user.uid);
+    itemArray.map((items) => {
+      const itemsRef = db
+        .ref("UserAccounts/" + user.uid + "/Orders/" + recKey + "/Items")
+        .push();
+
+      itemsRef
+        .set(items.key)
+        .then(() => {
+          if (promoPerc > 0) {
+            const itemsRef3 = db.ref("PromoCodes/" + promoId + "/" + user.uid);
+            itemsRef3.child(user.uid).set(true);
+
+            let users = promoUsers - 1;
+
+            const itemsRef = db.ref("PromoCodes/" + promoId);
+            itemsRef.child("NumberOfUsers").set(users);
+          }
+
+          const itemsRef3 = db.ref(
+            "UserAccounts/" + user.uid + "/Orders/" + recKey
+          );
+          itemsRef3.child("Date").set("" + date);
+          itemsRef3.child("Amount").set(getTotal());
+          itemsRef3.child("PaymentMethod").set("MobileMoney");
+          itemsRef3.child("Status").set("Pending");
+          itemsRef3
+            .child("TransportFee")
+            .set(5000)
+            .then(console.log("FirstUpload"))
+            .catch((error) => showToast("error" + error));
+        })
+        .catch((error) => showToast("Error" + error));
+
+      const adminRef = db.ref("Admin/Orders/" + recKey + "/Items").push();
+
+      adminRef
+        .set(items.key)
+        .then(() => {
+          const itemsRef3 = db.ref("Admin/Orders/" + recKey);
+          itemsRef3.child("Date").set("" + date);
+          itemsRef3.child("UserId").set(user.uid);
+          itemsRef3.child("Amount").set(getTotal());
+          itemsRef3.child("PaymentMethod").set("MobileMoney");
+          itemsRef3.child("Status").set("Pending");
+          itemsRef3.child("Name").set(username);
+          itemsRef3.child("Phone").set(phone);
+          itemsRef3.child("Location").set(address2 + " - " + address3);
+          itemsRef3
+            .child("TransportFee")
+            .set(5000)
+            .then(() => {
+              itemsRef6
+                .remove()
+                .then(() => navigation.navigate("Orders"))
+                .catch((error) => showToast("Error" + error));
             })
             .catch((error) => showToast("error" + error));
         })
@@ -434,6 +580,7 @@ export default function Cart({ navigation, route }) {
   //Promo Code
 
   function ValidateCode() {
+    let valid = true;
     const codeList = db.ref("PromoCodes/");
     codeList
       .orderByChild("Code")
@@ -444,8 +591,9 @@ export default function Cart({ navigation, route }) {
             let dataVal1 = child.key;
             let dataVal = child.val();
             if (child.child(user.uid).exists()) {
-              showToast("Code Already Used");
+              valid = false;
             } else {
+              valid = true;
               setValidPromo(true);
               setPromoUsers(dataVal.NumberOfUsers);
               setPromoPerc(dataVal.Percentage);
@@ -457,6 +605,11 @@ export default function Cart({ navigation, route }) {
           showToast("Invalid Promo Code");
         }
       });
+
+    if (valid) {
+    } else {
+      //showToast("Code Already Used");
+    }
   }
 
   return (
@@ -481,7 +634,7 @@ export default function Cart({ navigation, route }) {
           </Text>
         </View>
         <View style={{ flex: 1 }}>
-          {itemArray.length < 0 ? (
+          {itemArray.length == 0 ? (
             <View
               style={{
                 position: "absolute",
@@ -509,160 +662,163 @@ export default function Cart({ navigation, route }) {
               <ShowCart />
             </ScrollView>
           )}
-
-          <View
-            style={{
-              minHeight: 100,
-              backgroundColor: "white",
-              marginTop: 20,
-            }}
-          >
+          {itemArray.length == 0 ? null : (
             <View
               style={{
-                backgroundColor: "#e6edf0",
-                elevation: 5,
-                borderRadius: 5,
-                padding: 10,
-                marginLeft: 20,
-                marginRight: 20,
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: -20,
-              }}
-            >
-              <Icon
-                name="loyalty"
-                size={30}
-                style={{
-                  color: "blue",
-                  transform: [{ scaleX: -1 }],
-                  alignSelf: "flex-start",
-                }}
-              />
-              <TextInput
-                placeholder="Add Promo Code"
-                placeholderTextColor={"black"}
-                onChangeText={(text) => setPromoCode(text)}
-                style={styles.searchInputContainer}
-              />
-              {validPromo ? (
-                <Icon
-                  name="check-circle"
-                  size={20}
-                  style={{
-                    color: "green",
-                    alignSelf: "flex-end",
-                    padding: 5,
-
-                    right: 10,
-                  }}
-                />
-              ) : (
-                <TouchableOpacity onPress={() => ValidateCode()}>
-                  <Icon
-                    name="arrow-forward-ios"
-                    size={20}
-                    style={{
-                      color: "blue",
-                      alignSelf: "flex-end",
-                      padding: 5,
-                      backgroundColor: "white",
-                      right: 10,
-                      borderRadius: 20,
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
+                minHeight: 100,
+                backgroundColor: "white",
                 marginTop: 20,
-                marginLeft: 20,
-                marginRight: 20,
               }}
             >
-              <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                Transport Fee
-              </Text>
-              <Text style={{ fontSize: 20, fontWeight: "700" }}>UGX 5000</Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 10,
-                marginLeft: 20,
-                marginRight: 20,
-              }}
-            >
-              <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                Percentage
-              </Text>
-              <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                {promoPerc ? promoPerc : 0}% OFF
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 10,
-                marginLeft: 20,
-                marginRight: 20,
-                marginBottom: 20,
-              }}
-            >
-              <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                Total Price
-              </Text>
-              <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                UGX {getTotal()}
-              </Text>
-            </View>
-            <View
-              style={{
-                justifyContent: "space-between",
-                flexDirection: "row",
-                marginLeft: 20,
-                marginRight: 20,
-                marginBottom: 10,
-                alignItems: "center",
-              }}
-            >
-              <TouchableOpacity onPress={() => showCaution()}>
-                <Text
-                  style={{ color: "blue", fontSize: 20, fontWeight: "700" }}
-                >
-                  Cancel
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => setAboutVisible(true)}
+              <View
                 style={{
+                  backgroundColor: "#e6edf0",
+                  elevation: 5,
+                  borderRadius: 5,
                   padding: 10,
-                  backgroundColor: "blue",
-                  borderRadius: 20,
-                  width: 250,
+                  marginLeft: 20,
+                  marginRight: 20,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: -20,
                 }}
               >
-                <Text
+                <Icon
+                  name="loyalty"
+                  size={30}
                   style={{
-                    color: "white",
-                    fontSize: 20,
-                    fontWeight: "700",
-                    textAlign: "center",
+                    color: "blue",
+                    transform: [{ scaleX: -1 }],
+                    alignSelf: "flex-start",
+                  }}
+                />
+                <TextInput
+                  placeholder="Add Promo Code"
+                  placeholderTextColor={"black"}
+                  onChangeText={(text) => setPromoCode(text)}
+                  style={styles.searchInputContainer}
+                />
+                {validPromo ? (
+                  <Icon
+                    name="check-circle"
+                    size={20}
+                    style={{
+                      color: "green",
+                      alignSelf: "flex-end",
+                      padding: 5,
+
+                      right: 10,
+                    }}
+                  />
+                ) : (
+                  <TouchableOpacity onPress={() => ValidateCode()}>
+                    <Icon
+                      name="arrow-forward-ios"
+                      size={20}
+                      style={{
+                        color: "blue",
+                        alignSelf: "flex-end",
+                        padding: 5,
+                        backgroundColor: "white",
+                        right: 10,
+                        borderRadius: 20,
+                      }}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginTop: 20,
+                  marginLeft: 20,
+                  marginRight: 20,
+                }}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  Transport Fee
+                </Text>
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  UGX 5000
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginTop: 10,
+                  marginLeft: 20,
+                  marginRight: 20,
+                }}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  Percentage
+                </Text>
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  {promoPerc ? promoPerc : 0}% OFF
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginTop: 10,
+                  marginLeft: 20,
+                  marginRight: 20,
+                  marginBottom: 20,
+                }}
+              >
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  Total Price
+                </Text>
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                  UGX {getTotal()}
+                </Text>
+              </View>
+              <View
+                style={{
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  marginLeft: 20,
+                  marginRight: 20,
+                  marginBottom: 10,
+                  alignItems: "center",
+                }}
+              >
+                <TouchableOpacity onPress={() => showCaution()}>
+                  <Text
+                    style={{ color: "blue", fontSize: 20, fontWeight: "700" }}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setAboutVisible(true)}
+                  style={{
+                    padding: 10,
+                    backgroundColor: "blue",
+                    borderRadius: 20,
+                    width: 250,
                   }}
                 >
-                  Place Order
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 20,
+                      fontWeight: "700",
+                      textAlign: "center",
+                    }}
+                  >
+                    Place Order
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          )}
         </View>
         <BottomSheet visible={aboutVisible} onBackButtonPress={toggleBottom}>
           <View style={styles2.bottomNavigationView}>
