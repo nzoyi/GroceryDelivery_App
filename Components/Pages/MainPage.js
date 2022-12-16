@@ -744,7 +744,7 @@ export default function MainPage({ navigation }) {
         <ScrollView showsHorizontalScrollIndicator={false} horizontal={true}>
           {newData2
             .map((items, index) => {
-              return index < 6 ? (
+              return index < 5 ? (
                 <TouchableWithoutFeedback
                   key={index}
                   onPress={() =>
@@ -1160,6 +1160,7 @@ export default function MainPage({ navigation }) {
                   backgroundColor: "green",
                   padding: 10,
                   borderRadius: 10,
+                  marginTop: 10,
                 }}
               >
                 <Text
@@ -1242,6 +1243,7 @@ export default function MainPage({ navigation }) {
                   backgroundColor: "#e8b20e",
                   padding: 10,
                   borderRadius: 10,
+                  marginTop: 10,
                 }}
               >
                 <Text
@@ -1781,6 +1783,7 @@ export default function MainPage({ navigation }) {
           id: dataId,
           Name: data.Name,
           Image: data.Image,
+          Category: data.Category,
           Price: getFinal(),
           Quantity: numberValue,
         })
@@ -1983,7 +1986,17 @@ export default function MainPage({ navigation }) {
             </View>
           </TouchableWithoutFeedback>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-            <Icon name="account-circle" size={30} />
+            {uImage ? (
+              <Image
+                source={{ uri: uImage }}
+                style={{ width: 30, height: 30, borderRadius: 20 }}
+              />
+            ) : (
+              <Image
+                source={require("../../assets/monkey.png")}
+                style={{ width: 30, height: 30 }}
+              />
+            )}
           </TouchableOpacity>
         </View>
         <BottomSheet visible={aboutVisible} onBackButtonPress={toggleBottom}>

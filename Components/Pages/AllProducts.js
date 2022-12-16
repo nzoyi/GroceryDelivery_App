@@ -470,6 +470,7 @@ export default function AllProducts({ navigation, route }) {
           id: dataId,
           Name: data.Name,
           Image: data.Image,
+          Category: data.Category,
           Price: getFinal(),
           Quantity: numberValue,
         })

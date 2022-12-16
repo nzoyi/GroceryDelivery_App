@@ -130,16 +130,30 @@ export default function Cart({ navigation, route }) {
                 {items.key.Name}
               </Text>
               <Text style={{ fontSize: 14, fontWeight: "400" }}>
-                {items.key.Name}
+                {items.key.Category}
               </Text>
 
               <ShowCalc item={items.key} itemid={items.id} />
+            </View>
+            <View style={{ position: "absolute", right: 10, top: 10 }}>
+              <TouchableOpacity onPress={() => deleteItem(items.id)}>
+                <Icon name="delete-outline" size={30} />
+              </TouchableOpacity>
             </View>
           </View>
         ))}
       </View>
     );
   };
+
+  function deleteItem(id) {
+    const itemsRef2 = db.ref("Cart/" + user.uid);
+    itemsRef2
+      .child(id)
+      .remove()
+      .then(showToast("Product Deleted Successfully"))
+      .catch((error) => showToast("Error" + error));
+  }
 
   function getTotal() {
     let PriceNumber;
@@ -149,6 +163,38 @@ export default function Cart({ navigation, route }) {
       0
     );
     return PriceNumber;
+  }
+
+  function OrderNow() {
+    const stringData = itemArray.reduce((result, item) => {
+      return `${result}${item.key.Quantity}${item.key.Name}${item.key.Price},`;
+    }, "");
+
+    const fullName = stringData;
+    const listName = fullName.split(" ");
+
+    console.log(listName);
+
+    /*
+    const itemsRef = db.ref("UserAccounts/" + user.uid+"/Orders/").push();
+      itemsRef
+        .set({
+          id: dataId,
+          Items: data.Name,
+          Image: data.Image,
+          Category: data.Category,
+          Price: getFinal(),
+          Quantity: numberValue,
+        })
+        .then(() => {
+          showToast("Item Added Succesfully");
+          setNumber(1);
+          setAboutVisible(false);
+        })
+        .catch((error) => showToast("Error while Adding " + error));
+
+    */
+    //console.log(stringData);
   }
 
   return (
@@ -247,6 +293,7 @@ export default function Cart({ navigation, route }) {
                 Cancel
               </Text>
               <TouchableOpacity
+                onPress={() => OrderNow()}
                 style={{
                   padding: 10,
                   backgroundColor: "blue",

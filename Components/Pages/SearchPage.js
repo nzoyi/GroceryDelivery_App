@@ -119,9 +119,29 @@ export default function SearchPage({ navigation }) {
     };
   }
 
+  const [userName, setUsername] = useState("");
+  const [uImage, setUImage] = useState("");
+
+  const userRef = db.ref("UserAccounts/" + user.uid);
+  function getUserData() {
+    let isMounted = true;
+    userRef.on("value", (snapshot) => {
+      if (isMounted) {
+        let dataVal = snapshot.val();
+
+        setUsername(dataVal.Name);
+        setUImage(dataVal.Profile);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
   useEffect(() => {
     itemCart();
     ItemImages();
+    getUserData();
   }, []);
 
   const [aboutVisible, setAboutVisible] = useState(false);
@@ -481,6 +501,7 @@ export default function SearchPage({ navigation }) {
           id: dataId,
           Name: data.Name,
           Image: data.Image,
+          Category: data.Category,
           Price: getFinal(),
           Quantity: numberValue,
         })
@@ -654,7 +675,17 @@ export default function SearchPage({ navigation }) {
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-            <Icon name="account-circle" size={30} />
+            {uImage ? (
+              <Image
+                source={{ uri: uImage }}
+                style={{ width: 30, height: 30, borderRadius: 20 }}
+              />
+            ) : (
+              <Image
+                source={require("../../assets/monkey.png")}
+                style={{ width: 30, height: 30 }}
+              />
+            )}
           </TouchableOpacity>
         </View>
         <BottomSheet visible={aboutVisible} onBackButtonPress={toggleBottom}>

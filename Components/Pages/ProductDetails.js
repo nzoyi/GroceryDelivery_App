@@ -96,6 +96,7 @@ export default function ProductDetails({ navigation, route }) {
         let dataVal = snapshot.val();
         setImage(dataVal.Image);
         setItemName(dataVal.Name);
+        setItemCategory(dataVal.Category);
         setItemDescription(dataVal.Description);
         setItemPrice(dataVal.Price);
 
@@ -293,6 +294,7 @@ export default function ProductDetails({ navigation, route }) {
         id: pId,
         Name: itemName,
         Image: image,
+        Category: itemCategory,
         Price: getFinal(),
         Quantity: numberValue,
       })
