@@ -41,7 +41,8 @@
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos.",
         "NSCameraUsageDescription": "This app uses the camera to let user put a photo in his profile page."
-      }
+      },
+      "bundleIdentifier": "com.futuredesigns.cityfoods"
     },
     "android": {
       "permissions": [
