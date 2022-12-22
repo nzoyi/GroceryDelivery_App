@@ -83,7 +83,9 @@ export default function GetItems({ id }) {
             {items.key.Quantity}
           </Text>
           <View style={styles.verticleLine} />
-          <Text style={{ width: 100 }}>UGX {items.key.Price}</Text>
+          <Text style={{ width: 100, marginLeft: 20 }}>
+            UGX {items.key.Price}
+          </Text>
         </View>
       ))}
     </View>

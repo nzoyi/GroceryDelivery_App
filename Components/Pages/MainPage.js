@@ -459,7 +459,7 @@ export default function MainPage({ navigation }) {
                       desiredWidth={200}
                     />
 
-                    <View style={{ marginTop: 10 }}>
+                    <View style={{ marginTop: 10, padding: 5 }}>
                       <Text
                         style={{
                           fontSize: 18,
@@ -667,7 +667,7 @@ export default function MainPage({ navigation }) {
                       desiredWidth={200}
                     />
 
-                    <View style={{ marginTop: 10 }}>
+                    <View style={{ marginTop: 10, padding: 5 }}>
                       <Text
                         style={{
                           fontSize: 18,
@@ -766,7 +766,7 @@ export default function MainPage({ navigation }) {
                       desiredWidth={200}
                     />
 
-                    <View style={{ marginTop: 10 }}>
+                    <View style={{ marginTop: 10, padding: 5 }}>
                       <Text
                         style={{
                           fontSize: 18,
