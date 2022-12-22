@@ -77,6 +77,12 @@ export default function UserProfile({ navigation, route }) {
     navigation.replace("Login");
   }
 
+  const [aboutVisible, setAboutVisible] = useState(false);
+
+  const toggleBottom = () => {
+    setAboutVisible(!aboutVisible);
+  };
+
   const [username, setUsername] = useState("");
   const [userImage, setUserImage] = useState("");
   const [phone, setPhone] = useState("");
@@ -166,6 +172,45 @@ export default function UserProfile({ navigation, route }) {
       />
     );
   };
+
+  function customDesign() {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View style={styles.modalView}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity onPress={() => setAboutVisible(false)}>
+              <Icon
+                name="close"
+                size={20}
+                style={{
+                  marginLeft: 5,
+                  marginRight: 10,
+                  color: "white",
+                  backgroundColor: "red",
+                  borderRadius: 20,
+                }}
+              />
+            </TouchableOpacity>
+
+            <Text style={styles2.modalText}>Product</Text>
+            <View></View>
+          </View>
+
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
+            }}
+          />
+        </View>
+      </View>
+    );
+  }
 
   function SaveData() {}
 
@@ -393,6 +438,19 @@ export default function UserProfile({ navigation, route }) {
             </View>
           </ScrollView>
         </View>
+
+        <BottomSheet visible={aboutVisible} onBackButtonPress={toggleBottom}>
+          <View style={styles2.bottomNavigationView}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+              }}
+            >
+              {customDesign()}
+            </View>
+          </View>
+        </BottomSheet>
       </View>
     </SafeAreaView>
   );
@@ -425,5 +483,54 @@ const styles = StyleSheet.create({
     backgroundColor: "#dceffc",
     alignContent: "center",
     alignItems: "center",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+});
+
+const styles2 = StyleSheet.create({
+  bottomNavigationView: {
+    width: "100%",
+    position: "absolute",
+    backgroundColor: "grey",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 5,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "800",
   },
 });

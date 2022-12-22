@@ -16,7 +16,7 @@ import {
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native";
 
-import Snackbar from "react-native-snackbar-component";
+import { Snackbar } from "react-native-paper";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -61,7 +61,6 @@ export default function Profile({ navigation, route }) {
   const [uImage, setUImage] = useState("");
 
   const [snackIsVisible, setSnackIsVisible] = useState(false);
-  const [distance, setDistance] = useState(0);
 
   const userRef = db.ref("UserAccounts/" + user.uid);
   function getUserData() {
@@ -420,22 +419,19 @@ export default function Profile({ navigation, route }) {
 
         <Snackbar
           visible={snackIsVisible}
-          //SnackBar visibility control
-          textMessage="Service Comming Soon"
-          //Text on SnackBar
-          actionHandler={() => {
-            //function called while clicking on action Text
-            alert("Okay");
-            //After handling click making nackBar invisible
-            setSnackIsVisible(false);
+          onDismiss={() => setSnackIsVisible(false)}
+          action={{
+            label: "Okay",
+            onPress: () => setSnackIsVisible(false),
           }}
-          actionText="Action Button"
-          //action Text to print on SnackBar
-          distanceCallback={(distance) => {
-            //Number indicating distance taken up by snackbar
-            setDistance(distance);
-          }}
-        />
+          style={{ backgroundColor: "black" }}
+        >
+          <View>
+            <Text style={{ color: "white" }}>
+              Hey there! This Service is Coming Soon!
+            </Text>
+          </View>
+        </Snackbar>
       </View>
     </SafeAreaView>
   );

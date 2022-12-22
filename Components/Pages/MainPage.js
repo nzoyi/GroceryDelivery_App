@@ -17,6 +17,8 @@ import { db } from "../Connection/firebaseDB";
 
 import Icon from "react-native-vector-icons/MaterialIcons";
 
+import { Snackbar } from "react-native-paper";
+
 import {
   useColorScheme,
   ToastAndroid,
@@ -77,6 +79,9 @@ export default function MainPage({ navigation }) {
   }
 
   const [userName, setUsername] = useState("");
+
+  const [snackIsVisible, setSnackIsVisible] = useState(false);
+
   const [uImage, setUImage] = useState("");
 
   const userRef = db.ref("UserAccounts/" + user.uid);
@@ -1240,6 +1245,7 @@ export default function MainPage({ navigation }) {
                 Payment.
               </Text>
               <TouchableOpacity
+                onPress={() => setSnackIsVisible(true)}
                 style={{
                   backgroundColor: "#e8b20e",
                   padding: 10,
@@ -2008,6 +2014,22 @@ export default function MainPage({ navigation }) {
             </View>
           </View>
         </BottomSheet>
+
+        <Snackbar
+          visible={snackIsVisible}
+          onDismiss={() => setSnackIsVisible(false)}
+          action={{
+            label: "Okay",
+            onPress: () => setSnackIsVisible(false),
+          }}
+          style={{ backgroundColor: "black" }}
+        >
+          <View>
+            <Text style={{ color: "white" }}>
+              Hey there! This Service is Coming Soon!
+            </Text>
+          </View>
+        </Snackbar>
       </View>
     </SafeAreaView>
   );
