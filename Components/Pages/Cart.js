@@ -649,7 +649,7 @@ export default function Cart({ navigation, route }) {
               <Text style={{ textAlign: "center", fontSize: 20 }}>
                 No Items Available
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Text
                   style={{ textAlign: "center", fontSize: 20, color: "blue" }}
                 >

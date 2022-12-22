@@ -18,9 +18,9 @@
     },
     "androidStatusBar": {
       "barStyle": "light-content",
-      "hidden": false,
+      "hidden": true,
       "backgroundColor": "#000000",
-      "translucent": false
+      "translucent": true
     },
     "assetBundlePatterns": [
       "**/*"

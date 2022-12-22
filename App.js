@@ -16,6 +16,8 @@ import SearchPage from "./Components/Pages/SearchPage";
 import Favorite from "./Components/Pages/Favorite";
 import Orders from "./Components/Pages/Orders";
 import UserProfile from "./Components/Pages/UserProfile";
+import Coupons from "./Components/Pages/Coupons";
+import Settings from "./Components/Pages/Settings";
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -52,6 +54,8 @@ export default function App() {
           <Screen name="SearchPage" component={SearchPage}></Screen>
           <Screen name="Favorite" component={Favorite}></Screen>
           <Screen name="Orders" component={Orders}></Screen>
+          <Screen name="Coupons" component={Coupons}></Screen>
+          <Screen name="Settings" component={Settings}></Screen>
           <Screen name="UserProfile" component={UserProfile}></Screen>
         </Navigator>
       </NavigationContainer>
@@ -74,6 +78,8 @@ export default function App() {
           <Screen name="SearchPage" component={SearchPage}></Screen>
           <Screen name="Favorite" component={Favorite}></Screen>
           <Screen name="Orders" component={Orders}></Screen>
+          <Screen name="Coupons" component={Coupons}></Screen>
+          <Screen name="Settings" component={Settings}></Screen>
           <Screen name="UserProfile" component={UserProfile}></Screen>
         </Navigator>
       </NavigationContainer>

@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  StyleSheet,
-  View,
-  Alert,
-  Text,
-  AppState,
-  BackHandler,
-  TouchableWithoutFeedback,
-  Linking,
-} from "react-native";
-import Constants from "expo-constants";
-import COLORS from "../../Colors/Colors";
+import { StyleSheet, View, Alert, Text, Linking } from "react-native";
 import { Image } from "react-native";
 import { auth, firebase } from "../Connection/firebaseDB";
 // Using DB Reference
@@ -19,27 +8,15 @@ import { db } from "../Connection/firebaseDB";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 import {
-  useColorScheme,
   ToastAndroid,
   Platform,
   AlertIOS,
   TouchableOpacity,
-  Pressable,
-  Modal,
 } from "react-native";
 import { ScrollView } from "react-native";
-import { FlatList } from "react-native";
-import { ImageBackground } from "react-native";
-import { TextInput } from "react-native";
-import { StatusBar } from "react-native";
 import { SafeAreaView } from "react-native";
-import { BottomSheet } from "react-native-btr";
-import moment from "moment";
-import { LogBox } from "react-native";
-import * as Location from "expo-location";
-import { ActivityIndicator } from "react-native-paper";
-import Rating from "./Rating2";
-import ShowCalc from "./ShowCalc";
+
+import Snackbar from "react-native-snackbar-component";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -82,6 +59,9 @@ export default function Profile({ navigation, route }) {
 
   const [userName, setUsername] = useState("");
   const [uImage, setUImage] = useState("");
+
+  const [snackIsVisible, setSnackIsVisible] = useState(false);
+  const [distance, setDistance] = useState(0);
 
   const userRef = db.ref("UserAccounts/" + user.uid);
   function getUserData() {
@@ -209,7 +189,7 @@ export default function Profile({ navigation, route }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Coupons")}>
             <View
               style={{
                 flexDirection: "row",
@@ -236,7 +216,7 @@ export default function Profile({ navigation, route }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setSnackIsVisible(true)}>
             <View
               style={{
                 flexDirection: "row",
@@ -294,7 +274,7 @@ export default function Profile({ navigation, route }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
             <View
               style={{
                 flexDirection: "row",
@@ -437,6 +417,25 @@ export default function Profile({ navigation, route }) {
             Version 1.0.0
           </Text>
         </ScrollView>
+
+        <Snackbar
+          visible={snackIsVisible}
+          //SnackBar visibility control
+          textMessage="Service Comming Soon"
+          //Text on SnackBar
+          actionHandler={() => {
+            //function called while clicking on action Text
+            alert("Okay");
+            //After handling click making nackBar invisible
+            setSnackIsVisible(false);
+          }}
+          actionText="Action Button"
+          //action Text to print on SnackBar
+          distanceCallback={(distance) => {
+            //Number indicating distance taken up by snackbar
+            setDistance(distance);
+          }}
+        />
       </View>
     </SafeAreaView>
   );
