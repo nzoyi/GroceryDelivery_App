@@ -7,6 +7,7 @@ import {
   AppState,
   BackHandler,
   TouchableWithoutFeedback,
+  Animated,
 } from "react-native";
 import Constants from "expo-constants";
 import COLORS from "../../Colors/Colors";
@@ -81,33 +82,350 @@ export default function Coupons({ navigation, route }) {
 
   const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
 
-  function userInfo3() {
+  function ItemImages() {
     let isMounted = true;
     itemsRef2.on("value", (snapshot) => {
       if (isMounted) {
+        var itemArray = [];
         snapshot.forEach((child) => {
           itemArray.push({
             id: child.key,
             key: child.val(),
           });
-
-          setItemArray(itemArray);
         });
+
+        setItemArray(itemArray);
       }
     });
+    return () => {
+      isMounted = false;
+    };
   }
 
   useEffect(() => {
-    userInfo3();
+    ItemImages();
   }, []);
 
-  const ShowCoupons = () => {
+  const RemoteImage = ({ uri, desiredWidth }) => {
+    const [desiredHeight, setDesiredHeight] = React.useState(0);
+
+    Image.getSize(uri, (width, height) => {
+      setDesiredHeight((desiredWidth / width) * height);
+    });
+
     return (
-      <View>
-        <Text>Hello this is a Coupon</Text>
+      <Image
+        source={{ uri }}
+        borderTopLeftRadius={10}
+        borderBottomLeftRadius={10}
+        resizeMode="stretch"
+        style={{
+          borderWidth: 1,
+          width: desiredWidth,
+          height: desiredWidth,
+          alignSelf: "center",
+        }}
+      />
+    );
+  };
+
+  const ItemSeparatorView = () => {
+    return (
+      // Flat List Item Separator
+      <View
+        style={{
+          height: 0.5,
+          width: "100%",
+          backgroundColor: "#C8C8C8",
+        }}
+      />
+    );
+  };
+
+  const [setActiveCardIndex] = React.useState(0);
+  const scrollX = React.useRef(new Animated.Value(0)).current;
+
+  //Tabs
+  const ShowAll = ({ item }) => {
+    return (
+      <View style={styles.centerContent}>
+        <Animated.ScrollView
+          onMomentumScrollEnd={(e) => {
+            setActiveCardIndex(
+              Math.round(e.nativeEvent.contentOffset.x / cardWidth)
+            );
+          }}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            { useNativeDriver: true }
+          )}
+        >
+          <ShowCoupons items={item.key} />
+        </Animated.ScrollView>
       </View>
     );
   };
+
+  const ShowCoupons = ({ items }) => {
+    var given = moment(items.ExpiryDate, "DD/MM/YYYY");
+    var current = moment().startOf("day");
+
+    const finalDate = moment.duration(given.diff(current)).asDays();
+
+    if (finalDate > 0) {
+      return (
+        <View>
+          <View
+            style={{
+              backgroundColor: "white",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <RemoteImage
+              resizeMethod="auto"
+              resizeMode="stretch"
+              uri={items.Image}
+              desiredWidth={150}
+            />
+            {items.Used == "Yes" ? (
+              <View
+                style={{
+                  width: 150,
+                  position: "absolute",
+                  justifyContent: "center",
+                  alignSelf: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "800",
+                    color: "white",
+                    fontSize: 25,
+                    position: "absolute",
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    width: 150,
+                    textAlign: "center",
+                    backgroundColor: "red",
+                    transform: [{ rotate: "-40deg" }],
+                  }}
+                ></Text>
+                <Text
+                  style={{
+                    fontWeight: "800",
+                    color: "white",
+                    fontSize: 25,
+                    width: 150,
+                    textAlign: "center",
+                    backgroundColor: "red",
+                    transform: [{ rotate: "40deg" }],
+                  }}
+                >
+                  USED
+                </Text>
+              </View>
+            ) : null}
+
+            <View style={{ margin: 10, flex: 1 }}>
+              <Text
+                style={{
+                  color: "red",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                {items.Coupon}
+              </Text>
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 30,
+                  fontWeight: "400",
+                }}
+              >
+                {items.Offer} % Off
+              </Text>
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 15,
+                  fontWeight: "400",
+                }}
+              >
+                Until {items.ExpiryDate}
+              </Text>
+              {items.Used == "No" ? (
+                <Text
+                  style={{
+                    color: "black",
+                    fontSize: 20,
+                    fontWeight: "800",
+                  }}
+                >
+                  CODE: {items.PromoCode}
+                </Text>
+              ) : null}
+              {items.Used == "No" ? (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Cart", items.PromoCode)}
+                  style={{
+                    backgroundColor: "green",
+                    padding: 10,
+                    borderRadius: 10,
+                    marginTop: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      textAlign: "center",
+                      fontWeight: "800",
+                    }}
+                  >
+                    USE COUPON
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: "black",
+                    padding: 10,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      textAlign: "center",
+                      fontWeight: "800",
+                    }}
+                  >
+                    Used
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <View>
+          <View
+            style={{
+              backgroundColor: "white",
+              borderRadius: 10,
+              minHeight: 100,
+              elevation: 5,
+              margin: 5,
+              flexDirection: "row",
+            }}
+          >
+            <RemoteImage
+              resizeMethod="auto"
+              resizeMode="stretch"
+              uri={items.Image}
+              desiredWidth={150}
+            />
+            {items.Used == "Yes" ? (
+              <View
+                style={{
+                  width: 150,
+                  position: "absolute",
+                  justifyContent: "center",
+                  alignSelf: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "800",
+                    color: "white",
+                    fontSize: 25,
+                    position: "absolute",
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    width: 150,
+                    textAlign: "center",
+                    backgroundColor: "red",
+                    transform: [{ rotate: "-40deg" }],
+                  }}
+                ></Text>
+                <Text
+                  style={{
+                    fontWeight: "800",
+                    color: "white",
+                    fontSize: 25,
+                    width: 150,
+                    textAlign: "center",
+                    backgroundColor: "red",
+                    transform: [{ rotate: "40deg" }],
+                  }}
+                >
+                  USED
+                </Text>
+              </View>
+            ) : null}
+
+            <View style={{ margin: 10, flex: 1 }}>
+              <Text
+                style={{
+                  color: "red",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                {items.Coupon}
+              </Text>
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 30,
+                  fontWeight: "400",
+                }}
+              >
+                {items.Offer} % Off
+              </Text>
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 15,
+                  fontWeight: "400",
+                }}
+              >
+                Until {items.ExpiryDate}
+              </Text>
+              <View
+                style={{
+                  backgroundColor: "black",
+                  padding: 10,
+                  borderRadius: 10,
+                  marginTop: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontWeight: "800",
+                  }}
+                >
+                  Expired
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      );
+    }
+  };
+
+  function useCoupon() {}
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -159,9 +477,12 @@ export default function Coupons({ navigation, route }) {
               </TouchableOpacity>
             </View>
           ) : (
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <ShowCoupons />
-            </ScrollView>
+            <FlatList
+              data={itemArray}
+              keyExtractor={(item, index) => index.toString()}
+              ItemSeparatorComponent={ItemSeparatorView}
+              renderItem={ShowAll}
+            />
           )}
         </View>
       </View>

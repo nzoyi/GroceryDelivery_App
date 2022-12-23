@@ -378,9 +378,36 @@ export default function Favorite({ navigation }) {
           {
             //Body
           }
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <ShowAll />
-          </ScrollView>
+          {itemArray.length == 0 ? (
+            <View
+              style={{
+                position: "absolute",
+                justifyContent: "center",
+                alignSelf: "center",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+              }}
+            >
+              <Text
+                style={{ textAlign: "center", fontSize: 20, color: "white" }}
+              >
+                No Favorites Available
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
+                <Text
+                  style={{ textAlign: "center", fontSize: 20, color: "green" }}
+                >
+                  Add Products
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <ShowAll />
+            </ScrollView>
+          )}
         </View>
 
         {

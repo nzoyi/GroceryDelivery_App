@@ -7,6 +7,7 @@ import {
   Linking,
   TouchableWithoutFeedback,
   Share,
+  Modal,
 } from "react-native";
 import { Image } from "react-native";
 import { auth, firebase } from "../Connection/firebaseDB";
@@ -51,6 +52,8 @@ export default function Profile({ navigation, route }) {
   const [uImage, setUImage] = useState("");
 
   const [snackIsVisible, setSnackIsVisible] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const userRef = db.ref("UserAccounts/" + user.uid);
   function getUserData() {
@@ -262,6 +265,76 @@ export default function Profile({ navigation, route }) {
     }
   };
 
+  function customDesign() {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "rgba(0,0,0,0.7)",
+        }}
+      >
+        <View style={{ backgroundColor: "white", borderRadius: 20 }}>
+          <View style={styles2.modalView}>
+            <View style={{ flexDirection: "row", padding: 5, width: "100%" }}>
+              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                <Icon
+                  name="close"
+                  size={25}
+                  style={{
+                    position: "absolute",
+                    left: 5,
+                    borderRadius: 20,
+                    color: "white",
+                    backgroundColor: "red",
+                  }}
+                />
+              </TouchableWithoutFeedback>
+              <Text style={styles2.modalText}>CITY FOODS</Text>
+            </View>
+
+            <View style={{ alignSelf: "center" }}>
+              <Text>─────────────────────────</Text>
+            </View>
+            <Text style={{ textAlign: "center" }}>
+              City Foods was founded in 2022 by Future Designs Tech Company to
+              deliver Grocery products to consumer.
+              {"\n"}
+            </Text>
+            <Text style={{ textAlign: "center" }}>
+              City Foods {"(Future Designs Tech)"} {"\n"}Follow us on all Social
+              Media platforms @cityfoods{"\n"}
+            </Text>
+            <Text style={{ textAlign: "center" }}>
+              Inquiries / Queries{"\n"}Call{"\n"}
+              {phoneLink}
+            </Text>
+            <View style={{ alignSelf: "center" }}>
+              <Text>─────────────────────────</Text>
+            </View>
+            <Text style={{ textAlign: "center" }}>
+              Designed by Future Designs Tech
+            </Text>
+            <View style={{ flexDirection: "row", alignSelf: "center" }}>
+              <Image
+                source={require("../../assets/uganda.png")}
+                style={{ width: 20, height: 20 }}
+              />
+              <Text style={{ textAlign: "center", fontWeight: "800" }}>
+                Made in Uganda
+              </Text>
+              <Image
+                source={require("../../assets/uganda.png")}
+                style={{ width: 20, height: 20 }}
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -280,8 +353,8 @@ export default function Profile({ navigation, route }) {
             <Icon name="arrow-left" size={40} />
           </TouchableOpacity>
 
-          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 30 }}>
-            Profile
+          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 10 }}>
+            Settings
           </Text>
         </View>
 
@@ -319,7 +392,7 @@ export default function Profile({ navigation, route }) {
                 </Text>
               </View>
               <Icon
-                name="arrow-right"
+                name="arrow-right-thin-circle-outline"
                 size={30}
                 style={{
                   position: "absolute",
@@ -361,7 +434,7 @@ export default function Profile({ navigation, route }) {
                   My Orders
                 </Text>
                 <Icon
-                  name="arrow-right"
+                  name="arrow-right-thin-circle-outline"
                   size={30}
                   style={{
                     position: "absolute",
@@ -394,7 +467,7 @@ export default function Profile({ navigation, route }) {
                   My Coupons
                 </Text>
                 <Icon
-                  name="arrow-right"
+                  name="arrow-right-thin-circle-outline"
                   size={30}
                   style={{
                     position: "absolute",
@@ -427,7 +500,7 @@ export default function Profile({ navigation, route }) {
                   My Wallet
                 </Text>
                 <Icon
-                  name="arrow-right"
+                  name="arrow-right-thin-circle-outline"
                   size={30}
                   style={{
                     position: "absolute",
@@ -462,7 +535,7 @@ export default function Profile({ navigation, route }) {
                   Profile
                 </Text>
                 <Icon
-                  name="arrow-right"
+                  name="arrow-right-thin-circle-outline"
                   size={30}
                   style={{
                     position: "absolute",
@@ -474,6 +547,16 @@ export default function Profile({ navigation, route }) {
               </View>
             </TouchableOpacity>
 
+            <View
+              style={{
+                borderBottomColor: "grey",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                marginTop: 20,
+                width: "80%",
+                alignSelf: "center",
+              }}
+            />
+
             <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
               <View
                 style={{
@@ -484,18 +567,47 @@ export default function Profile({ navigation, route }) {
                   alignItems: "center",
                 }}
               >
+                <Icon name="bell" size={30} style={{ color: "grey" }} />
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
+                >
+                  Notifications
+                </Text>
                 <Icon
-                  name="power-settings"
+                  name="arrow-right-thin-circle-outline"
+                  size={30}
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    alignSelf: "center",
+                    color: "grey",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 30,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="information-outline"
                   size={30}
                   style={{ color: "grey" }}
                 />
                 <Text
                   style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
                 >
-                  Settings
+                  About
                 </Text>
                 <Icon
-                  name="arrow-right"
+                  name="arrow-right-thin-circle-outline"
                   size={30}
                   style={{
                     position: "absolute",
@@ -637,7 +749,7 @@ export default function Profile({ navigation, route }) {
                 >
                   <Text>Privacy Policy</Text>
                   <Icon
-                    name="arrow-right"
+                    name="arrow-right-thin-circle-outline"
                     size={30}
                     style={{
                       alignSelf: "center",
@@ -660,7 +772,7 @@ export default function Profile({ navigation, route }) {
                 >
                   <Text>Term & Conditions</Text>
                   <Icon
-                    name="arrow-right"
+                    name="arrow-right-thin-circle-outline"
                     size={30}
                     style={{
                       alignSelf: "center",
@@ -705,6 +817,17 @@ export default function Profile({ navigation, route }) {
             </Text>
           </View>
         </Snackbar>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}
+        >
+          {customDesign()}
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -732,5 +855,44 @@ const styles = StyleSheet.create({
     backgroundColor: "#dceffc",
     alignContent: "center",
     alignItems: "center",
+  },
+});
+
+const styles2 = StyleSheet.create({
+  bottomNavigationView: {
+    backgroundColor: "#fff",
+    minHeight: 150,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalView: {
+    margin: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    textAlign: "center",
+    alignSelf: "center",
+    width: "80%",
+    fontSize: 20,
+    fontWeight: "800",
   },
 });

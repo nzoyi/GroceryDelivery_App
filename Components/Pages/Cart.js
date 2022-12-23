@@ -51,6 +51,10 @@ function showToast(msg) {
 }
 
 export default function Cart({ navigation, route }) {
+  const couponCode = route.params;
+
+  //console.log(couponCode);
+
   function handleBackButtonClick() {
     navigation.goBack();
     return true;
@@ -132,6 +136,31 @@ export default function Cart({ navigation, route }) {
   const [promoId, setPromoId] = useState("");
 
   const [aboutVisible, setAboutVisible] = useState(false);
+
+  if (couponCode) {
+    const itemsRef4 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+
+    useEffect(() => {
+      let isMounted = true;
+      itemsRef4
+        .orderByChild("PromoCode")
+        .equalTo(couponCode)
+        .on("value", (snapshot) => {
+          if (isMounted) {
+            snapshot.forEach((child) => {
+              let dataVal = child.val();
+              setPromoPerc(dataVal.Offer);
+              setValidPromo(true);
+              setPromoId(dataVal.id);
+              //console.log(dataVal.Coupon);
+            });
+          }
+        });
+      return () => {
+        isMounted = false;
+      };
+    }, []);
+  }
 
   const toggleBottom = () => {
     setAboutVisible(!aboutVisible);
@@ -414,7 +443,7 @@ export default function Cart({ navigation, route }) {
     console.log(getStatus);
     if (getStatus == "successful") {
       showToast("Payment Succesfull Check Email..");
-      console.log(data);
+      // console.log(data);
       OrderNow2();
     } else {
       showToast("Error while Making Payment. Try Again");
@@ -436,13 +465,22 @@ export default function Cart({ navigation, route }) {
         .set(items.key)
         .then(() => {
           if (promoPerc > 0) {
-            const itemsRef3 = db.ref("PromoCodes/" + promoId + "/" + user.uid);
-            itemsRef3.child(user.uid).set(true);
+            if (couponCode) {
+              const itemsRef3 = db.ref(
+                "UserAccounts/" + user.uid + "/Coupons/" + promoId + "/"
+              );
+              itemsRef3.child("Used").set("Yes");
+            } else {
+              const itemsRef3 = db.ref(
+                "PromoCodes/" + promoId + "/" + user.uid
+              );
+              itemsRef3.child(user.uid).set(true);
 
-            let users = promoUsers - 1;
+              let users = promoUsers - 1;
 
-            const itemsRef = db.ref("PromoCodes/" + promoId);
-            itemsRef.child("NumberOfUsers").set(users);
+              const itemsRef = db.ref("PromoCodes/" + promoId);
+              itemsRef.child("NumberOfUsers").set(users);
+            }
           }
 
           const itemsRef3 = db.ref(
@@ -500,13 +538,22 @@ export default function Cart({ navigation, route }) {
         .set(items.key)
         .then(() => {
           if (promoPerc > 0) {
-            const itemsRef3 = db.ref("PromoCodes/" + promoId + "/" + user.uid);
-            itemsRef3.child(user.uid).set(true);
+            if (couponCode) {
+              const itemsRef3 = db.ref(
+                "UserAccounts/" + user.uid + "/Coupons/" + promoId + "/"
+              );
+              itemsRef3.child("Used").set("Yes");
+            } else {
+              const itemsRef3 = db.ref(
+                "PromoCodes/" + promoId + "/" + user.uid
+              );
+              itemsRef3.child(user.uid).set(true);
 
-            let users = promoUsers - 1;
+              let users = promoUsers - 1;
 
-            const itemsRef = db.ref("PromoCodes/" + promoId);
-            itemsRef.child("NumberOfUsers").set(users);
+              const itemsRef = db.ref("PromoCodes/" + promoId);
+              itemsRef.child("NumberOfUsers").set(users);
+            }
           }
 
           const itemsRef3 = db.ref(
@@ -629,7 +676,7 @@ export default function Cart({ navigation, route }) {
             <Icon name="keyboard-arrow-left" size={40} />
           </TouchableOpacity>
 
-          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 30 }}>
+          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 10 }}>
             Shopping Cart
           </Text>
         </View>
@@ -649,7 +696,7 @@ export default function Cart({ navigation, route }) {
               <Text style={{ textAlign: "center", fontSize: 20 }}>
                 No Items Available
               </Text>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
+              <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
                 <Text
                   style={{ textAlign: "center", fontSize: 20, color: "blue" }}
                 >
@@ -693,12 +740,24 @@ export default function Cart({ navigation, route }) {
                   }}
                 />
                 <TextInput
-                  placeholder="Add Promo Code"
+                  placeholder={couponCode ? couponCode : "Add Promo Code"}
                   placeholderTextColor={"black"}
                   onChangeText={(text) => setPromoCode(text)}
                   style={styles.searchInputContainer}
                 />
-                {validPromo ? (
+                {couponCode ? (
+                  <Icon
+                    name="check-circle"
+                    size={20}
+                    style={{
+                      color: "green",
+                      alignSelf: "flex-end",
+                      padding: 5,
+
+                      right: 10,
+                    }}
+                  />
+                ) : validPromo ? (
                   <Icon
                     name="check-circle"
                     size={20}

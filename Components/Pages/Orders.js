@@ -7,39 +7,29 @@ import {
   AppState,
   BackHandler,
   TouchableWithoutFeedback,
+  SafeAreaView,
+  Linking,
 } from "react-native";
 import Constants from "expo-constants";
+import { BottomSheet } from "react-native-btr";
 import COLORS from "../../Colors/Colors";
 import { Image } from "react-native";
 import { auth, firebase } from "../Connection/firebaseDB";
 // Using DB Reference
 import { db } from "../Connection/firebaseDB";
 
-import Icon from "react-native-vector-icons/MaterialIcons";
-
 import {
-  useColorScheme,
   ToastAndroid,
   Platform,
   AlertIOS,
   TouchableOpacity,
-  Pressable,
-  Modal,
 } from "react-native";
 import { ScrollView } from "react-native";
-import { FlatList } from "react-native";
-import { ImageBackground } from "react-native";
-import { TextInput } from "react-native";
-import { StatusBar } from "react-native";
-import { SafeAreaView } from "react-native";
-import { BottomSheet } from "react-native-btr";
 import moment from "moment";
-import { LogBox } from "react-native";
-import * as Location from "expo-location";
-import { ActivityIndicator } from "react-native-paper";
-import Rating from "./Rating2";
-import ShowCalc from "./ShowCalc";
 import GetItems from "./GetItems";
+
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { TextInput } from "react-native";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -77,6 +67,12 @@ export default function Orders({ navigation, route }) {
     navigation.replace("Login");
   }
 
+  const [showBottom, setShowBottom] = useState(false);
+
+  const toggleBottom = () => {
+    setShowBottom(!showBottom);
+  };
+
   const [itemArray, setItemArray] = useState([]);
 
   const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Orders/");
@@ -92,9 +88,24 @@ export default function Orders({ navigation, route }) {
             key: child.val(),
           });
         });
-
-        //const newData = itemArray.sort((a, b) => b.key.Date - a.key.Date);
         setItemArray(itemArray.reverse());
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
+  const [phoneLink, setPhone] = useState("");
+  const itemData5 = db.ref("Links");
+  function linkData() {
+    let isMounted = true;
+    itemData5.on("value", (snapshot) => {
+      var links = [];
+      if (isMounted) {
+        let dataSet = snapshot.val();
+
+        setPhone(dataSet.PhoneLink);
       }
     });
     return () => {
@@ -104,6 +115,7 @@ export default function Orders({ navigation, route }) {
 
   useEffect(() => {
     ItemImages();
+    linkData();
   }, []);
 
   const ShowOrders = () => {
@@ -234,6 +246,229 @@ export default function Orders({ navigation, route }) {
       .catch((error) => showToast("Error" + error));
   }
 
+  const [isMSG, setMSG] = useState(false);
+  const [message, setMessage] = useState("");
+
+  function customDesign() {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View style={styles.modalView}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setShowBottom(false);
+                setMSG(false);
+              }}
+            >
+              <Icon
+                name="close"
+                size={20}
+                style={{
+                  marginLeft: 5,
+                  marginRight: 10,
+                  color: "white",
+                  backgroundColor: "red",
+                  borderRadius: 20,
+                }}
+              />
+            </TouchableOpacity>
+
+            {isMSG ? (
+              <Text style={styles2.modalText}>Whatsapp Message</Text>
+            ) : (
+              <Text style={styles2.modalText}>Choose Method</Text>
+            )}
+            <View></View>
+          </View>
+
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              marginBottom: 5,
+            }}
+          />
+          <View>
+            {isMSG ? (
+              <View>
+                <View
+                  style={{
+                    borderBottomLeftRadius: 10,
+                    borderBottomRightRadius: 10,
+                    backgroundColor: "white",
+                    flex: 1,
+                    marginLeft: 10,
+                    marginRight: 10,
+                    elevation: 5,
+                    backgroundColor: "white",
+                    minHeight: 50,
+                    padding: 5,
+                  }}
+                >
+                  <TextInput
+                    placeholder="Type a message here!"
+                    onChangeText={(text) => setMessage(text)}
+                    value={message}
+                    multiline={true}
+                    underlineColorAndroid="transparent"
+                    style={{
+                      width: "100%",
+                      textAlign: "auto",
+                      fontSize: 16,
+                      borderRadius: 10,
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => sendMessage()}
+                  style={{
+                    backgroundColor: "green",
+                    padding: 10,
+                    borderRadius: 10,
+                    marginTop: 10,
+                    width: 200,
+                    alignItems: "center",
+                    alignSelf: "center",
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <Icon
+                      name="whatsapp"
+                      size={20}
+                      style={{
+                        color: "white",
+                        justifyContent: "center",
+                      }}
+                    />
+                    <Text
+                      style={{
+                        color: "white",
+                        textAlign: "center",
+                        fontWeight: "800",
+                        fontSize: 17,
+                      }}
+                    >
+                      Send Message
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 5,
+                  justifyContent: "space-between",
+                }}
+              >
+                <TouchableWithoutFeedback onPress={() => MakeCall()}>
+                  <View
+                    style={{
+                      width: "40%",
+                      height: 60,
+                      backgroundColor: "black",
+                      padding: 5,
+                      borderRadius: 10,
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Icon
+                      name="phone-outline"
+                      size={30}
+                      style={{
+                        color: "white",
+                        justifyContent: "center",
+                      }}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "600",
+                        marginLeft: 10,
+                        color: "white",
+                      }}
+                    >
+                      Make Call
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+
+                <TouchableWithoutFeedback onPress={() => setMSG(true)}>
+                  <View
+                    style={{
+                      width: "40%",
+                      height: 60,
+                      backgroundColor: "#187002",
+                      padding: 5,
+                      borderRadius: 10,
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Icon
+                      name="whatsapp"
+                      size={30}
+                      style={{
+                        color: "white",
+                        justifyContent: "center",
+                      }}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "600",
+                        marginLeft: 10,
+                        color: "white",
+                      }}
+                    >
+                      Message
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  function sendMessage() {
+    if (!message) {
+      showToast("Type A Message to send");
+    } else {
+      let text = "whatsapp://send?text=" + message + "&phone=" + phoneLink;
+      Linking.canOpenURL(text)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert(
+              "Please install whatsapp to send direct message via whatsapp"
+            );
+          } else {
+            return Linking.openURL(text)
+              .then(() => {
+                showToast("Message sent Succesfully");
+                setMessage(null);
+              })
+              .catch((error) => showToast("Error " + error));
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    }
+  }
+
+  function MakeCall() {
+    Linking.openURL(`tel:${phoneLink}`)
+      .then(setShowBottom(false))
+      .catch((error) => showToast("Error " + error));
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -248,12 +483,29 @@ export default function Orders({ navigation, route }) {
           }}
         >
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="keyboard-arrow-left" size={40} />
+            <Icon name="arrow-left" size={40} />
           </TouchableOpacity>
 
-          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 30 }}>
+          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 10 }}>
             Orders
           </Text>
+          <TouchableOpacity
+            onPress={() => setShowBottom(true)}
+            style={{
+              position: "absolute",
+              right: 10,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "700",
+                color: "blue",
+              }}
+            >
+              Support
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={{ flex: 1 }}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -287,6 +539,18 @@ export default function Orders({ navigation, route }) {
             )}
           </ScrollView>
         </View>
+        <BottomSheet visible={showBottom} onBackButtonPress={toggleBottom}>
+          <View style={styles2.bottomNavigationView}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+              }}
+            >
+              {customDesign()}
+            </View>
+          </View>
+        </BottomSheet>
       </View>
     </SafeAreaView>
   );
@@ -319,5 +583,40 @@ const styles = StyleSheet.create({
     backgroundColor: "#dceffc",
     alignContent: "center",
     alignItems: "center",
+  },
+  modalView: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    padding: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+});
+
+const styles2 = StyleSheet.create({
+  bottomNavigationView: {
+    width: "100%",
+    position: "absolute",
+    backgroundColor: "grey",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "800",
   },
 });

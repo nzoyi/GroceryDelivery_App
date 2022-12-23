@@ -433,14 +433,14 @@ export default function ProductDetails({ navigation, route }) {
           <ScrollView showsVerticalScrollIndicator={false}>
             <ImageBackground
               source={image ? { uri: image } : null}
-              borderBottomRightRadius={300}
-              borderBottomLeftRadius={30}
+              borderBottomRightRadius={200}
+              borderBottomLeftRadius={10}
               resizeMode="stretch"
               style={{
-                height: 400,
+                height: 320,
                 backgroundColor: "#0fa614",
                 borderBottomLeftRadius: 30,
-                borderBottomRightRadius: 250,
+                borderBottomRightRadius: 190,
                 elevation: 10,
               }}
             >
@@ -569,7 +569,7 @@ export default function ProductDetails({ navigation, route }) {
                 {getTotalRating()}
               </View>
               <Text style={{ alignSelf: "center", fontWeight: "bold" }}>
-                ~Show ❤️ Some ❤️ Love~
+                ~Rate Product~
               </Text>
 
               <View style={{ alignSelf: "center" }}>

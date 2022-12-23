@@ -95,7 +95,7 @@ export default function Settings({ navigation, route }) {
             <Icon name="keyboard-arrow-left" size={40} />
           </TouchableOpacity>
 
-          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 30 }}>
+          <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 10 }}>
             Settings
           </Text>
         </View>
