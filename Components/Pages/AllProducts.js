@@ -515,7 +515,9 @@ export default function AllProducts({ navigation, route }) {
             </Text>
           </View>
 
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", padding: 5 }}
+          >
             <View
               style={{
                 borderRadius: 20,
@@ -523,6 +525,7 @@ export default function AllProducts({ navigation, route }) {
                 padding: 10,
                 margin: 10,
                 flexDirection: "row",
+                flex: 1,
                 alignItems: "center",
               }}
             >
@@ -535,20 +538,21 @@ export default function AllProducts({ navigation, route }) {
                 style={{ width: "80%", marginLeft: 10 }}
               />
             </View>
-            <TouchableOpacity onPress={() => searchFilterFunction2("Price")}>
-              <View
-                style={{
-                  backgroundColor: "#0fa614",
-                  width: 50,
-                  height: 50,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 20,
-                }}
-              >
+            <TouchableOpacity
+              onPress={() => searchFilterFunction2("Price")}
+              style={{
+                backgroundColor: "#0fa614",
+                width: 30,
+                height: 30,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 10,
+              }}
+            >
+              <View>
                 <Icon
                   name="filter-list"
-                  size={25}
+                  size={20}
                   style={{
                     alignSelf: "center",
                     color: "white",
