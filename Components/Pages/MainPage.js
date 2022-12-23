@@ -7,6 +7,7 @@ import {
   AppState,
   BackHandler,
   TouchableWithoutFeedback,
+  Share,
 } from "react-native";
 import Constants from "expo-constants";
 import COLORS from "../../Colors/Colors";
@@ -83,6 +84,26 @@ export default function MainPage({ navigation }) {
   const [snackIsVisible, setSnackIsVisible] = useState(false);
 
   const [uImage, setUImage] = useState("");
+
+  const [playStore, setPlayStore] = useState("");
+  const [appleStore, setAppleStore] = useState("");
+
+  const itemData5 = db.ref("Links");
+  function linkData() {
+    let isMounted = true;
+    itemData5.on("value", (snapshot) => {
+      var links = [];
+      if (isMounted) {
+        let dataSet = snapshot.val();
+
+        setPlayStore(dataSet.PlayStore);
+        setAppleStore(dataSet.AppleStore);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
 
   const userRef = db.ref("UserAccounts/" + user.uid);
   function getUserData() {
@@ -176,6 +197,7 @@ export default function MainPage({ navigation }) {
     ItemImages();
     itemCart();
     ItemImages2();
+    linkData();
   }, []);
 
   let arry = [
@@ -253,7 +275,7 @@ export default function MainPage({ navigation }) {
   const [loadAll, setLoadAll] = useState(true);
 
   var myArray = ["Women", "Men", "Kids", "Pregnant"];
-  var myArray2 = ["Refer", "Wallet"];
+  var myArray2 = ["Refer"];
 
   var randomItem = myArray[Math.floor(Math.random() * myArray.length)];
   const [newName, setnewName] = useState("");
@@ -1162,6 +1184,7 @@ export default function MainPage({ navigation }) {
                 a 10% off coupon for 10 products you order.
               </Text>
               <TouchableOpacity
+                onPress={() => onShare()}
                 style={{
                   backgroundColor: "green",
                   padding: 10,
@@ -1802,6 +1825,31 @@ export default function MainPage({ navigation }) {
     }
   }
 
+  const onShare = async () => {
+    let link;
+    if (Platform.OS === "android") {
+      link = playStore;
+    } else {
+      link = appleStore;
+    }
+
+    try {
+      const result = await Share.share({
+        message:
+          "Hi there 👋, Have you yet used this App to make Grocery 🍓🛍️ Shopping 🛍️🍍 ⁉️ Check it out now by clicking this link " +
+          link,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+        } else {
+        }
+      } else if (result.action === Share.dismissedAction) {
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
@@ -1839,12 +1887,12 @@ export default function MainPage({ navigation }) {
               {uImage ? (
                 <Image
                   source={{ uri: uImage }}
-                  style={{ width: 50, height: 50, borderRadius: 30 }}
+                  style={{ width: 40, height: 40, borderRadius: 20 }}
                 />
               ) : (
                 <Image
                   source={require("../../assets/monkey.png")}
-                  style={{ width: 50, height: 50 }}
+                  style={{ width: 40, height: 40 }}
                 />
               )}
             </TouchableOpacity>

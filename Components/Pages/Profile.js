@@ -1,11 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { StyleSheet, View, Alert, Text, Linking } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Alert,
+  Text,
+  Linking,
+  TouchableWithoutFeedback,
+  Share,
+} from "react-native";
 import { Image } from "react-native";
 import { auth, firebase } from "../Connection/firebaseDB";
 // Using DB Reference
 import { db } from "../Connection/firebaseDB";
 
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import {
   ToastAndroid,
@@ -29,24 +37,6 @@ function showToast(msg) {
     );
   } else {
     AlertIOS.alert(msg);
-  }
-}
-
-function OpenWhatsapp(link) {
-  if (link) {
-    Linking.canOpenURL(link)
-      .then((supported) => {
-        if (!supported) {
-          Alert.alert(
-            "Please install whatsapp to send direct message via whatsapp"
-          );
-        } else {
-          return Linking.openURL(link);
-        }
-      })
-      .catch((err) => console.error("An error occurred", err));
-  } else {
-    Alert.alert("sendWhatsAppMessage -----> ", "message link is undefined");
   }
 }
 
@@ -78,9 +68,199 @@ export default function Profile({ navigation, route }) {
     };
   }
 
+  const [phoneLink, setPhone] = useState("");
+  const [playStore, setPlayStore] = useState("");
+  const [appleStore, setAppleStore] = useState("");
+  const [facebook, setFacebook] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [policy, setPolicy] = useState("");
+  const [tc, setTC] = useState("");
+  const [instagram, setInstagram] = useState("");
+
+  const itemData5 = db.ref("Links");
+  function linkData() {
+    let isMounted = true;
+    itemData5.on("value", (snapshot) => {
+      var links = [];
+      if (isMounted) {
+        let dataSet = snapshot.val();
+
+        setPlayStore(dataSet.PlayStore);
+        setAppleStore(dataSet.AppleStore);
+        setPhone(dataSet.PhoneLink);
+        setFacebook(dataSet.Facebook);
+        setTwitter(dataSet.Twitter);
+        setInstagram(dataSet.Instagram);
+        setPolicy(dataSet.Policy);
+        setTC(dataSet.TAC);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
   useEffect(() => {
     getUserData();
+    linkData();
   }, []);
+
+  function RateUs() {
+    if (Platform.OS === "android") {
+      let link = playStore;
+      if (link) {
+        Linking.canOpenURL(link)
+          .then((supported) => {
+            if (!supported) {
+              Alert.alert("Please install Google PlayStore to rate us. Thanks");
+            } else {
+              return Linking.openURL(link);
+            }
+          })
+          .catch((err) => console.error("An error occurred", err));
+      } else {
+        Alert.alert("Google PlayStore -----> ", "link is undefined");
+      }
+    } else {
+      let link = appleStore;
+      if (link) {
+        Linking.canOpenURL(link)
+          .then((supported) => {
+            if (!supported) {
+              Alert.alert("Please install Appstore to rate us. Thanks");
+            } else {
+              return Linking.openURL(link);
+            }
+          })
+          .catch((err) => console.error("An error occurred", err));
+      } else {
+        Alert.alert("Apple AppStore -----> ", "link is undefined");
+      }
+    }
+  }
+
+  function OpenWhatsapp(link) {
+    if (link) {
+      Linking.canOpenURL(link)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert(
+              "Please install whatsapp to send direct message via whatsapp"
+            );
+          } else {
+            return Linking.openURL(link);
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    } else {
+      Alert.alert("sendWhatsAppMessage -----> ", "message link is undefined");
+    }
+  }
+
+  const Privacy = () => {
+    if (policy) {
+      Linking.canOpenURL(policy)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert("Please install a Browser. Thanks");
+          } else {
+            return Linking.openURL(policy);
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    } else {
+      Alert.alert("Browser -----> ", "link is undefined");
+    }
+  };
+
+  const TC = () => {
+    if (tc) {
+      Linking.canOpenURL(tc)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert("Please install a Browser to rate us. Thanks");
+          } else {
+            return Linking.openURL(tc);
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    } else {
+      Alert.alert("Browser -----> ", "link is undefined");
+    }
+  };
+
+  const OpenFacebook = () => {
+    if (facebook) {
+      Linking.canOpenURL(facebook)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert("Please install Facebook app. Thanks");
+          } else {
+            return Linking.openURL(facebook);
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    } else {
+      Alert.alert("Facebook App-----> ", "link is undefined");
+    }
+  };
+
+  const OpenInstgram = () => {
+    if (instagram) {
+      Linking.canOpenURL(instagram)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert("Please install Instagram app. Thanks");
+          } else {
+            return Linking.openURL(instagram);
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    } else {
+      Alert.alert("Instagram App-----> ", "link is undefined");
+    }
+  };
+
+  const OpenTwitter = () => {
+    if (twitter) {
+      Linking.canOpenURL(twitter)
+        .then((supported) => {
+          if (!supported) {
+            Alert.alert("Please install Twitter app. Thanks");
+          } else {
+            return Linking.openURL(twitter);
+          }
+        })
+        .catch((err) => console.error("An error occurred", err));
+    } else {
+      Alert.alert("Twitter App-----> ", "link is undefined");
+    }
+  };
+
+  const onShare = async () => {
+    let link;
+    if (Platform.OS === "android") {
+      link = playStore;
+    } else {
+      link = appleStore;
+    }
+
+    try {
+      const result = await Share.share({
+        message:
+          "Hi there, Have you yet used this App? Check it out now by clicking this link " +
+          link,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+        } else {
+        }
+      } else if (result.action === Share.dismissedAction) {
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -97,7 +277,7 @@ export default function Profile({ navigation, route }) {
           }}
         >
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="keyboard-arrow-left" size={40} />
+            <Icon name="arrow-left" size={40} />
           </TouchableOpacity>
 
           <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 30 }}>
@@ -106,7 +286,9 @@ export default function Profile({ navigation, route }) {
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <TouchableOpacity onPress={() => navigation.navigate("UserProfile")}>
+          <TouchableWithoutFeedback
+            onPress={() => navigation.navigate("UserProfile")}
+          >
             <View
               style={{
                 flexDirection: "row",
@@ -137,7 +319,7 @@ export default function Profile({ navigation, route }) {
                 </Text>
               </View>
               <Icon
-                name="keyboard-arrow-right"
+                name="arrow-right"
                 size={30}
                 style={{
                   position: "absolute",
@@ -147,7 +329,7 @@ export default function Profile({ navigation, route }) {
                 }}
               />
             </View>
-          </TouchableOpacity>
+          </TouchableWithoutFeedback>
         </View>
 
         <View
@@ -161,260 +343,351 @@ export default function Profile({ navigation, route }) {
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <TouchableOpacity onPress={() => navigation.navigate("Orders")}>
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 30,
-                marginLeft: 10,
-                marginRight: 10,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="shopping-cart" size={30} style={{ color: "grey" }} />
-              <Text style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}>
-                My Orders
-              </Text>
-              <Icon
-                name="keyboard-arrow-right"
-                size={30}
+          <View style={{ marginBottom: 10 }}>
+            <TouchableOpacity onPress={() => navigation.navigate("Orders")}>
+              <View
                 style={{
-                  position: "absolute",
-                  right: 10,
-                  alignSelf: "center",
-                  color: "grey",
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate("Coupons")}>
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 30,
-                marginLeft: 10,
-                marginRight: 10,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="card-giftcard" size={30} style={{ color: "grey" }} />
-              <Text style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}>
-                My Coupons
-              </Text>
-              <Icon
-                name="keyboard-arrow-right"
-                size={30}
-                style={{
-                  position: "absolute",
-                  right: 10,
-                  alignSelf: "center",
-                  color: "grey",
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => setSnackIsVisible(true)}>
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 30,
-                marginLeft: 10,
-                marginRight: 10,
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="account-balance-wallet"
-                size={30}
-                style={{ color: "grey" }}
-              />
-              <Text style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}>
-                My Wallet
-              </Text>
-              <Icon
-                name="keyboard-arrow-right"
-                size={30}
-                style={{
-                  position: "absolute",
-                  right: 10,
-                  alignSelf: "center",
-                  color: "grey",
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate("UserProfile")}>
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 30,
-                marginLeft: 10,
-                marginRight: 10,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="account-circle" size={30} style={{ color: "grey" }} />
-              <Text style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}>
-                Profile
-              </Text>
-              <Icon
-                name="keyboard-arrow-right"
-                size={30}
-                style={{
-                  position: "absolute",
-                  right: 10,
-                  alignSelf: "center",
-                  color: "grey",
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: 30,
-                marginLeft: 10,
-                marginRight: 10,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="settings" size={30} style={{ color: "grey" }} />
-              <Text style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}>
-                Settings
-              </Text>
-              <Icon
-                name="keyboard-arrow-right"
-                size={30}
-                style={{
-                  position: "absolute",
-                  right: 10,
-                  alignSelf: "center",
-                  color: "grey",
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              OpenWhatsapp(
-                "whatsapp://send?text=Hello, I am " +
-                  userName +
-                  ", I am requesting for assistance from City Foods App Team.&phone=+256751883325"
-              )
-            }
-          >
-            <View
-              style={{
-                margin: 20,
-                backgroundColor: "#5ae87c",
-                padding: 10,
-                height: 100,
-                alignItems: "center",
-                flexDirection: "row",
-                justifyContent: "center",
-                borderRadius: 20,
-              }}
-            >
-              <Icon name="help" size={60} style={{ color: "#1ba10a" }} />
-              <Text
-                style={{
-                  color: "#1ba10a",
-                  fontSize: 20,
-                  fontWeight: "900",
+                  flexDirection: "row",
+                  marginTop: 30,
                   marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
                 }}
               >
-                How can we help you?
-              </Text>
+                <Icon name="cart-variant" size={30} style={{ color: "grey" }} />
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
+                >
+                  My Orders
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={30}
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    alignSelf: "center",
+                    color: "grey",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate("Coupons")}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 30,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="wallet-giftcard"
+                  size={30}
+                  style={{ color: "grey" }}
+                />
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
+                >
+                  My Coupons
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={30}
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    alignSelf: "center",
+                    color: "grey",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setSnackIsVisible(true)}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 30,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="wallet-outline"
+                  size={30}
+                  style={{ color: "grey" }}
+                />
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
+                >
+                  My Wallet
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={30}
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    alignSelf: "center",
+                    color: "grey",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("UserProfile")}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 30,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="account-circle"
+                  size={30}
+                  style={{ color: "grey" }}
+                />
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
+                >
+                  Profile
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={30}
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    alignSelf: "center",
+                    color: "grey",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 30,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="power-settings"
+                  size={30}
+                  style={{ color: "grey" }}
+                />
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", marginLeft: 10 }}
+                >
+                  Settings
+                </Text>
+                <Icon
+                  name="arrow-right"
+                  size={30}
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    alignSelf: "center",
+                    color: "grey",
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                OpenWhatsapp(
+                  "whatsapp://send?text=Hello, I am " +
+                    userName +
+                    ", I am requesting for assistance from City Foods App Team.&phone=" +
+                    phoneLink
+                )
+              }
+            >
+              <View
+                style={{
+                  margin: 20,
+                  backgroundColor: "#5ae87c",
+                  padding: 10,
+                  height: 100,
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  borderRadius: 20,
+                }}
+              >
+                <Icon name="whatsapp" size={60} style={{ color: "#1ba10a" }} />
+                <Text
+                  style={{
+                    color: "#1ba10a",
+                    fontSize: 20,
+                    fontWeight: "900",
+                    marginLeft: 10,
+                  }}
+                >
+                  How can we help you?
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <View
+              style={{
+                borderBottomColor: "grey",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                marginTop: 10,
+                width: "80%",
+                alignSelf: "center",
+              }}
+            />
+
+            <View style={{ margin: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TouchableWithoutFeedback onPress={() => OpenFacebook()}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Icon
+                      name="facebook"
+                      size={35}
+                      style={{
+                        alignSelf: "center",
+                        color: "blue",
+                        marginRight: 5,
+                      }}
+                    />
+                    <Text style={{ fontSize: 18 }}>Facebook</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+
+                <TouchableWithoutFeedback onPress={() => OpenInstgram()}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Icon
+                      name="instagram"
+                      size={35}
+                      style={{
+                        alignSelf: "center",
+                        color: "brown",
+                        marginRight: 5,
+                      }}
+                    />
+                    <Text style={{ fontSize: 18 }}>Instagram</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+
+                <TouchableWithoutFeedback onPress={() => OpenTwitter()}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Icon
+                      name="twitter"
+                      size={35}
+                      style={{
+                        alignSelf: "center",
+                        color: "blue",
+                        marginRight: 5,
+                      }}
+                    />
+                    <Text style={{ fontSize: 18 }}>Twitter</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
             </View>
-          </TouchableOpacity>
 
-          <View
-            style={{
-              borderBottomColor: "grey",
-              borderBottomWidth: StyleSheet.hairlineWidth,
-              marginTop: 10,
-              width: "80%",
-              alignSelf: "center",
-            }}
-          />
+            <View
+              style={{
+                borderBottomColor: "grey",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                marginTop: 10,
+                width: "80%",
+                alignSelf: "center",
+              }}
+            />
 
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              margin: 10,
-            }}
-          >
-            <TouchableOpacity>
-              <View
-                style={{
-                  flexDirection: "row",
-                  backgroundColor: "white",
-                  elevation: 2,
-                  padding: 10,
-                  borderRadius: 10,
-                  alignItems: "center",
-                }}
-              >
-                <Text>Privacy Policy</Text>
-                <Icon
-                  name="keyboard-arrow-right"
-                  size={30}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                margin: 10,
+              }}
+            >
+              <TouchableWithoutFeedback onPress={() => Privacy()}>
+                <View
                   style={{
-                    alignSelf: "center",
-                    color: "grey",
+                    flexDirection: "row",
+                    backgroundColor: "white",
+                    elevation: 2,
+                    padding: 10,
+                    borderRadius: 10,
+                    alignItems: "center",
                   }}
-                />
-              </View>
-            </TouchableOpacity>
+                >
+                  <Text>Privacy Policy</Text>
+                  <Icon
+                    name="arrow-right"
+                    size={30}
+                    style={{
+                      alignSelf: "center",
+                      color: "grey",
+                    }}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
 
-            <TouchableOpacity>
-              <View
-                style={{
-                  flexDirection: "row",
-                  backgroundColor: "white",
-                  elevation: 2,
-                  padding: 10,
-                  borderRadius: 10,
-                  alignItems: "center",
-                }}
-              >
-                <Text>Term & Conditions</Text>
-                <Icon
-                  name="keyboard-arrow-right"
-                  size={30}
+              <TouchableWithoutFeedback onPress={() => TC()}>
+                <View
                   style={{
-                    alignSelf: "center",
-                    color: "grey",
+                    flexDirection: "row",
+                    backgroundColor: "white",
+                    elevation: 2,
+                    padding: 10,
+                    borderRadius: 10,
+                    alignItems: "center",
                   }}
-                />
-              </View>
-            </TouchableOpacity>
+                >
+                  <Text>Term & Conditions</Text>
+                  <Icon
+                    name="arrow-right"
+                    size={30}
+                    style={{
+                      alignSelf: "center",
+                      color: "grey",
+                    }}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+
+            <View
+              style={{
+                borderBottomColor: "grey",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                marginTop: 10,
+                width: "80%",
+                alignSelf: "center",
+              }}
+            />
+
+            <Text style={{ alignSelf: "center", marginTop: 10 }}>
+              © Future Designs {new Date().getFullYear()}
+            </Text>
+            <Text style={{ alignSelf: "center", marginTop: 10 }}>
+              Version 1.0.0
+            </Text>
           </View>
-
-          <View
-            style={{
-              borderBottomColor: "grey",
-              borderBottomWidth: StyleSheet.hairlineWidth,
-              marginTop: 10,
-              width: "80%",
-              alignSelf: "center",
-            }}
-          />
-
-          <Text style={{ alignSelf: "center", marginTop: 10 }}>
-            © Future Designs {new Date().getFullYear()}
-          </Text>
-          <Text style={{ alignSelf: "center", marginTop: 10 }}>
-            Version 1.0.0
-          </Text>
         </ScrollView>
 
         <Snackbar
@@ -440,7 +713,7 @@ export default function Profile({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#f7fafa",
     flexDirection: "column",
   },
   header: {

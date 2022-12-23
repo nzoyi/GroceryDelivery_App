@@ -33,13 +33,8 @@ import { TextInput } from "react-native";
 import { StatusBar } from "react-native";
 import { SafeAreaView } from "react-native";
 import { BottomSheet } from "react-native-btr";
-import moment from "moment";
-import { LogBox } from "react-native";
-import * as Location from "expo-location";
+import * as ImagePicker from "expo-image-picker";
 import { ActivityIndicator } from "react-native-paper";
-import Rating from "./Rating2";
-import ShowCalc from "./ShowCalc";
-import GetItems from "./GetItems";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -89,6 +84,11 @@ export default function UserProfile({ navigation, route }) {
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [address3, setAddress3] = useState("");
+  const [newAddress2, setNewAddress2] = useState("");
+  const [newAddress3, setNewAddress3] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+
+  const [loading, setLoading] = React.useState(false);
 
   const itemsRef4 = db.ref("UserAccounts/" + user.uid);
 
@@ -148,7 +148,49 @@ export default function UserProfile({ navigation, route }) {
     userInfo3();
   }, []);
 
-  //console.log(number1);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  let openImagePickerAsync = async () => {
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaType: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+
+    if (pickerResult.cancelled === true) {
+      return;
+    }
+
+    uploadImage(pickerResult.uri);
+    setSelectedImage({ localUri: pickerResult.uri });
+  };
+
+  const uploadImage = async (uri) => {
+    setLoading(true);
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    var ref = firebase.storage().ref("profiles/").child("profiles");
+    ref.put(blob).then((snapshot) => {
+      snapshot.ref.getDownloadURL().then((url) => {
+        const itemUpload2 = db
+          .ref("/UserAccounts/" + user.uid)
+          .child("Profile");
+        itemUpload2.set(url).then(() => {
+          showToast("Uploaded Successfully");
+          setLoading(false);
+        });
+      });
+    });
+  };
 
   const RemoteImage = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
@@ -197,7 +239,7 @@ export default function UserProfile({ navigation, route }) {
               />
             </TouchableOpacity>
 
-            <Text style={styles2.modalText}>Product</Text>
+            <Text style={styles2.modalText}>Location Settings</Text>
             <View></View>
           </View>
 
@@ -207,12 +249,211 @@ export default function UserProfile({ navigation, route }) {
               borderBottomWidth: StyleSheet.hairlineWidth,
             }}
           />
+          <View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "500" }}>Country</Text>
+              <Text style={{ fontSize: 20, fontWeight: "500" }}>
+                {address1}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "500" }}>City</Text>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  elevation: 2,
+                  padding: 5,
+                  borderRadius: 5,
+                }}
+              >
+                <TextInput
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "500",
+                    width: 150,
+                    textAlign: "right",
+                  }}
+                  placeholder={address2}
+                  placeholderTextColor="grey"
+                  onChangeText={(text) => setNewAddress2(text)}
+                />
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "500" }}>
+                Local Address
+              </Text>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  elevation: 2,
+                  padding: 5,
+                  borderRadius: 5,
+                }}
+              >
+                <TextInput
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "500",
+                    width: 150,
+                    textAlign: "right",
+                  }}
+                  placeholder={address3}
+                  placeholderTextColor="grey"
+                  onChangeText={(text) => setNewAddress3(text)}
+                />
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 10,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "500" }}>Contact</Text>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  elevation: 2,
+                  padding: 5,
+                  borderRadius: 5,
+                }}
+              >
+                <TextInput
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "500",
+                    width: 150,
+                    textAlign: "right",
+                  }}
+                  placeholder={"" + phone}
+                  placeholderTextColor="grey"
+                  onChangeText={(text) => setNewAddress2(text)}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity onPress={() => SaveData()}>
+              <View
+                style={{
+                  backgroundColor: "green",
+                  padding: 5,
+                  borderRadius: 10,
+                  margin: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 22,
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  UPDATE
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
   }
 
-  function SaveData() {}
+  function SaveData() {
+    let isValid = true;
+
+    if (newAddress2.length > 0) {
+      const itemsRef2 = db.ref("UserAccounts/" + user.uid);
+      itemsRef2
+        .child("City")
+        .set(newAddress2)
+        .then(() => {
+          isValid = true;
+        })
+        .catch((error) => showToast("Error" + error));
+    }
+
+    if (newAddress3.length > 0) {
+      const itemsRef2 = db.ref("UserAccounts/" + user.uid);
+      itemsRef2
+        .child("Locale")
+        .set(newAddress3)
+        .then(() => {
+          isValid = true;
+        })
+        .catch((error) => showToast("Error" + error));
+    }
+
+    if (newPhone.length > 0) {
+      const itemsRef2 = db.ref("UserAccounts/" + user.uid);
+      itemsRef2
+        .child("Contact")
+        .set("" + newPhone)
+        .then(() => {
+          isValid = true;
+        })
+        .catch((error) => showToast("Error" + error));
+    }
+
+    if (isValid) {
+      showToast("Update Successful");
+      setAboutVisible(false);
+    }
+  }
+
+  const Loader = ({ visible = false }) => {
+    return (
+      visible && (
+        <View
+          style={{
+            position: "absolute",
+            right: 10,
+            marginTop: 10,
+            marginLeft: 20,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator
+              size="small"
+              animating={true}
+              color={COLORS.blue}
+            />
+            <Text style={{ marginLeft: 10, fontSize: 16 }}>Uploading...</Text>
+          </View>
+        </View>
+      )
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -248,21 +489,40 @@ export default function UserProfile({ navigation, route }) {
         <View
           style={{
             marginTop: -100,
-            borderRadius: 30,
+            borderRadius: 20,
             backgroundColor: "white",
             elevation: 10,
           }}
         >
-          <RemoteImage
-            resizeMethod="auto"
-            resizeMode="stretch"
-            uri={
-              userImage
-                ? userImage
-                : "https://media.sproutsocial.com/uploads/2018/04/Facebook-Cover-Photo-Size.png"
-            }
-            desiredWidth={100}
-          />
+          <View>
+            <Loader visible={loading} />
+            <RemoteImage
+              resizeMethod="auto"
+              resizeMode="stretch"
+              uri={
+                userImage
+                  ? userImage
+                  : "https://media.sproutsocial.com/uploads/2018/04/Facebook-Cover-Photo-Size.png"
+              }
+              desiredWidth={100}
+            />
+            <TouchableOpacity
+              onPress={() => openImagePickerAsync()}
+              style={{
+                alignSelf: "center",
+                position: "absolute",
+              }}
+            >
+              <Icon
+                name="add-circle"
+                size={30}
+                style={{
+                  color: "white",
+                  elevation: 10,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View
@@ -377,11 +637,13 @@ export default function UserProfile({ navigation, route }) {
                   <Text style={{ fontSize: 20, fontWeight: "800" }}>
                     Location
                   </Text>
-                  <Text
-                    style={{ fontSize: 20, fontWeight: "800", color: "blue" }}
-                  >
-                    Edit
-                  </Text>
+                  <TouchableOpacity onPress={() => setAboutVisible(true)}>
+                    <Text
+                      style={{ fontSize: 20, fontWeight: "800", color: "blue" }}
+                    >
+                      Edit
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 <View
                   style={{
@@ -432,6 +694,21 @@ export default function UserProfile({ navigation, route }) {
                   </Text>
                   <Text style={{ fontSize: 20, fontWeight: "800" }}>
                     {address3}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginTop: 10,
+                  }}
+                >
+                  <Text style={{ fontSize: 20, fontWeight: "800" }}>
+                    Contact
+                  </Text>
+                  <Text style={{ fontSize: 20, fontWeight: "800" }}>
+                    {phone}
                   </Text>
                 </View>
               </View>
