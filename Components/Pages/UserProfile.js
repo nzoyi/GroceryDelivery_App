@@ -455,6 +455,19 @@ export default function UserProfile({ navigation, route }) {
     );
   };
 
+  const handleSignOut = () => {
+    try {
+      auth
+        .signOut()
+        .then(() => {
+          navigation.replace("Login");
+        })
+        .catch((error) => alert(error.message));
+    } catch {
+      (error) => console.log("Error " + error);
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -463,7 +476,7 @@ export default function UserProfile({ navigation, route }) {
           source={{
             uri: userImage
               ? userImage
-              : "https://media.sproutsocial.com/uploads/2018/04/Facebook-Cover-Photo-Size.png",
+              : "https://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png",
           }}
           style={{
             height: 250,
@@ -502,7 +515,7 @@ export default function UserProfile({ navigation, route }) {
               uri={
                 userImage
                   ? userImage
-                  : "https://media.sproutsocial.com/uploads/2018/04/Facebook-Cover-Photo-Size.png"
+                  : "https://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png"
               }
               desiredWidth={100}
             />
@@ -517,7 +530,7 @@ export default function UserProfile({ navigation, route }) {
                 name="add-circle"
                 size={30}
                 style={{
-                  color: "white",
+                  color: "red",
                   elevation: 10,
                 }}
               />
@@ -711,6 +724,21 @@ export default function UserProfile({ navigation, route }) {
                     {phone}
                   </Text>
                 </View>
+                <TouchableWithoutFeedback onPress={() => handleSignOut()}>
+                  <View
+                    style={{
+                      alignSelf: "center",
+                      marginTop: 30,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <Text
+                      style={{ fontSize: 20, fontWeight: "800", color: "red" }}
+                    >
+                      Logout
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
               </View>
             </View>
           </ScrollView>

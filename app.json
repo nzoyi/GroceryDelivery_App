@@ -57,7 +57,9 @@
     "extra": {
       "eas": {
         "projectId": "8a31af49-6b9f-4ec5-bec2-bff970557bfd"
-      }
-    }
+      },
+      "IOS_KEY": "1025016915176-64c3ave50dosmc9ig8963f0jubtgi6r2.apps.googleusercontent.com",
+      "ANDROID_KEY": "1025016915176-rdodvgkf2q38ep82gmdmq5td2eufero6.apps.googleusercontent.com"
+    } 
   }
 }

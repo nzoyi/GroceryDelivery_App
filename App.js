@@ -18,6 +18,7 @@ import Orders from "./Components/Pages/Orders";
 import UserProfile from "./Components/Pages/UserProfile";
 import Coupons from "./Components/Pages/Coupons";
 import Settings from "./Components/Pages/Settings";
+import TourPage from "./Components/Pages/TourPage";
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -44,6 +45,7 @@ export default function App() {
           screenOptions={{ headerShown: false }}
         >
           <Screen name="OnBoardingScreen" component={OnBoardingScreen}></Screen>
+          <Screen name="TourPage" component={TourPage}></Screen>
           <Screen name="Login" component={Login}></Screen>
           <Screen name="HomePage" component={HomePage}></Screen>
           <Screen name="MainPage" component={MainPage}></Screen>
@@ -68,6 +70,7 @@ export default function App() {
           screenOptions={{ headerShown: false }}
         >
           <Screen name="SplashScreen" component={SplashScreen}></Screen>
+          <Screen name="TourPage" component={TourPage}></Screen>
           <Screen name="Login" component={Login}></Screen>
           <Screen name="HomePage" component={HomePage}></Screen>
           <Screen name="MainPage" component={MainPage}></Screen>
