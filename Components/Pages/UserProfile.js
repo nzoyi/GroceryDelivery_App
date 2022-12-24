@@ -124,6 +124,9 @@ export default function UserProfile({ navigation, route }) {
         setNumber1(total1);
       }
     });
+    return () => {
+      isMounted = false;
+    };
   }
 
   const [number2, setNumber2] = useState();
@@ -274,8 +277,7 @@ export default function UserProfile({ navigation, route }) {
               <Text style={{ fontSize: 20, fontWeight: "500" }}>City</Text>
               <View
                 style={{
-                  backgroundColor: "white",
-                  elevation: 2,
+                  backgroundColor: "#e8edec",
                   padding: 5,
                   borderRadius: 5,
                 }}
@@ -307,8 +309,7 @@ export default function UserProfile({ navigation, route }) {
               </Text>
               <View
                 style={{
-                  backgroundColor: "white",
-                  elevation: 2,
+                  backgroundColor: "#e8edec",
                   padding: 5,
                   borderRadius: 5,
                 }}
@@ -338,8 +339,7 @@ export default function UserProfile({ navigation, route }) {
               <Text style={{ fontSize: 20, fontWeight: "500" }}>Contact</Text>
               <View
                 style={{
-                  backgroundColor: "white",
-                  elevation: 2,
+                  backgroundColor: "#e8edec",
                   padding: 5,
                   borderRadius: 5,
                 }}
@@ -570,7 +570,7 @@ export default function UserProfile({ navigation, route }) {
               <View
                 style={{
                   flexDirection: "row",
-                  justifyContent: "space-between",
+                  justifyContent: "space-evenly",
                   marginTop: 10,
                 }}
               >
@@ -612,7 +612,7 @@ export default function UserProfile({ navigation, route }) {
                     backgroundColor: "#11d6bc",
                     padding: 5,
                     borderRadius: 5,
-                    width: 120,
+                    minWidth: 120,
                   }}
                 >
                   <View style={{ alignItems: "center" }}>

@@ -218,12 +218,12 @@ export default function MainPage({ navigation }) {
       value: "Fruits",
     },
     {
-      id: "Protein Foods",
-      value: "Protein Foods",
+      id: "Root Crops",
+      value: "Root Crops",
     },
     {
-      id: "Dairy",
-      value: "Dairy",
+      id: "Others",
+      value: "Others",
     },
   ];
 
@@ -1302,100 +1302,118 @@ export default function MainPage({ navigation }) {
       return itemData.indexOf(id) > -1;
     });
 
-    return (
-      <View>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {newData2.map((items, index) => (
-            <TouchableWithoutFeedback
-              key={index}
-              onPress={() => navigation.navigate("ProductDetails", items.id)}
-            >
-              <View
-                style={{
-                  borderBottomRightRadius: 20,
-                  borderTopLeftRadius: 20,
-                  backgroundColor: "white",
-                  flexDirection: "row",
-                  margin: 5,
-                }}
+    if (newData2.length == 0) {
+      return (
+        <View
+          style={{
+            justifyContent: "center",
+            alignSelf: "center",
+            alignItems: "center",
+            marginTop: 50,
+            flex: 1,
+          }}
+        >
+          <Text style={{ textAlign: "center", fontSize: 20, color: "white" }}>
+            No Results Available
+          </Text>
+        </View>
+      );
+    } else {
+      return (
+        <View>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {newData2.map((items, index) => (
+              <TouchableWithoutFeedback
+                key={index}
+                onPress={() => navigation.navigate("ProductDetails", items.id)}
               >
-                <RemoteImage2
-                  resizeMethod="auto"
-                  resizeMode="stretch"
-                  uri={items.key.Image}
-                  desiredWidth={100}
-                />
-
                 <View
                   style={{
-                    alignSelf: "center",
-                    justifyContent: "center",
-                    left: 10,
+                    borderBottomRightRadius: 20,
+                    borderTopLeftRadius: 20,
+                    backgroundColor: "white",
+                    flexDirection: "row",
+                    margin: 5,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      fontWeight: "700",
-                      marginLeft: 10,
-                      bottom: 15,
-                    }}
-                  >
-                    {items.key.Name}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "300",
-                      marginLeft: 10,
-                      bottom: 15,
-                    }}
-                  >
-                    {items.key.Category}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "300",
-                      marginLeft: 10,
-                      bottom: 15,
-                      color: "green",
-                    }}
-                  >
-                    UGX {items.key.Price}
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  onPress={() => {
-                    setData(items.key);
-                    setDataId(items.id);
-                    setAboutVisible(true);
-                  }}
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    backgroundColor: "#0fa614",
-                    alignSelf: "center",
-                    width: 80,
-                    alignItems: "center",
-                    borderTopLeftRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    padding: 5,
-                  }}
-                >
-                  <Icon
-                    name="add-shopping-cart"
-                    size={25}
-                    style={{ color: "white" }}
+                  <RemoteImage2
+                    resizeMethod="auto"
+                    resizeMode="stretch"
+                    uri={items.key.Image}
+                    desiredWidth={100}
                   />
-                </TouchableOpacity>
-              </View>
-            </TouchableWithoutFeedback>
-          ))}
-        </ScrollView>
-      </View>
-    );
+
+                  <View
+                    style={{
+                      alignSelf: "center",
+                      justifyContent: "center",
+                      left: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "700",
+                        marginLeft: 10,
+                        bottom: 15,
+                      }}
+                    >
+                      {items.key.Name}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "300",
+                        marginLeft: 10,
+                        bottom: 15,
+                      }}
+                    >
+                      {items.key.Category}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "300",
+                        marginLeft: 10,
+                        bottom: 15,
+                        color: "green",
+                      }}
+                    >
+                      UGX {items.key.Price}
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setData(items.key);
+                      setDataId(items.id);
+                      setAboutVisible(true);
+                    }}
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      backgroundColor: "#0fa614",
+                      alignSelf: "center",
+                      width: 80,
+                      alignItems: "center",
+                      borderTopLeftRadius: 10,
+                      borderBottomLeftRadius: 10,
+                      padding: 5,
+                    }}
+                  >
+                    <Icon
+                      name="add-shopping-cart"
+                      size={25}
+                      style={{ color: "white" }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </TouchableWithoutFeedback>
+            ))}
+          </ScrollView>
+        </View>
+      );
+    }
   };
 
   const LoadAll = () => {

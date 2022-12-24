@@ -312,6 +312,7 @@ export default function Orders({ navigation, route }) {
                 >
                   <TextInput
                     placeholder="Type a message here!"
+                    placeholderTextColor={"grey"}
                     onChangeText={(text) => setMessage(text)}
                     value={message}
                     multiline={true}
@@ -321,6 +322,7 @@ export default function Orders({ navigation, route }) {
                       textAlign: "auto",
                       fontSize: 16,
                       borderRadius: 10,
+                      color: "black",
                     }}
                   />
                 </View>
@@ -384,6 +386,7 @@ export default function Orders({ navigation, route }) {
                       style={{
                         color: "white",
                         justifyContent: "center",
+                        marginLeft: 10,
                       }}
                     />
                     <Text
@@ -417,6 +420,7 @@ export default function Orders({ navigation, route }) {
                       style={{
                         color: "white",
                         justifyContent: "center",
+                        marginLeft: 10,
                       }}
                     />
                     <Text

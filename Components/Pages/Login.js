@@ -356,8 +356,8 @@ export default function Login({ navigation }) {
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <ImageBackground
-            source={require("../../assets/health_pc.jpg")}
-            blurRadius={20}
+            source={require("../../assets/bg_orange.jpg")}
+            blurRadius={10}
             borderBottomRightRadius={200}
             style={{
               backgroundColor: "white",
@@ -570,8 +570,6 @@ export default function Login({ navigation }) {
                     onChangeFormattedText={(text) => {
                       setFormattedValue(text);
                     }}
-                    withDarkTheme
-                    withShadow
                   />
                 </View>
 
@@ -728,6 +726,15 @@ export default function Login({ navigation }) {
                 </Text>
               </View>
             </TouchableWithoutFeedback> */}
+
+            <Text style={{ alignSelf: "center", marginTop: 50 }}>
+              © Future Designs {new Date().getFullYear()}
+            </Text>
+            <Text
+              style={{ alignSelf: "center", marginTop: 10, marginBottom: 30 }}
+            >
+              Version 1.0.0
+            </Text>
           </View>
         </ScrollView>
       </View>

@@ -124,8 +124,26 @@ export default function Cart({ navigation, route }) {
     };
   }
 
+  const [balance, setBalance] = useState("");
+
+  const itemsRef6 = db.ref("Admin/Account/");
+  function adminAcc() {
+    let isMounted = true;
+    itemsRef6.on("value", (snapshot) => {
+      if (isMounted) {
+        let dataVal = snapshot.val();
+        setBalance(dataVal.Balance);
+        //console.log(dataVal.Balance);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
   useEffect(() => {
     ItemImages();
+    adminAcc();
     userInfo();
   }, []);
 
@@ -555,6 +573,12 @@ export default function Cart({ navigation, route }) {
               itemsRef.child("NumberOfUsers").set(users);
             }
           }
+
+          let orig = getTotal();
+          let final = orig + balance;
+
+          const itemsRef = db.ref("Admin/Account/");
+          itemsRef.child("Balance").set(final);
 
           const itemsRef3 = db.ref(
             "UserAccounts/" + user.uid + "/Orders/" + recKey

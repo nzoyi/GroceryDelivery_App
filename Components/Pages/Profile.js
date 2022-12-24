@@ -26,6 +26,7 @@ import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native";
 
 import { Snackbar } from "react-native-paper";
+import moment from "moment";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -52,6 +53,7 @@ export default function Profile({ navigation, route }) {
   const [uImage, setUImage] = useState("");
 
   const [snackIsVisible, setSnackIsVisible] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -71,7 +73,36 @@ export default function Profile({ navigation, route }) {
     };
   }
 
+  const itemsRef = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+
+  function userInfo2() {
+    let isMounted = true;
+    itemsRef.on("value", (snapshot) => {
+      if (isMounted) {
+        if (snapshot.exists()) {
+          snapshot.forEach((child) => {
+            let dataVal = child.val();
+
+            var given = moment(dataVal.ExpiryDate, "DD/MM/YYYY");
+            var current = moment().startOf("day");
+
+            const finalDate = moment.duration(given.diff(current)).asDays();
+            if (finalDate > 0 && dataVal.Used == "No") {
+              setIsAvailable(true);
+            }
+          });
+        } else {
+          setIsAvailable(false);
+        }
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
   const [phoneLink, setPhone] = useState("");
+  const [phoneLink2, setPhone2] = useState("");
   const [playStore, setPlayStore] = useState("");
   const [appleStore, setAppleStore] = useState("");
   const [facebook, setFacebook] = useState("");
@@ -91,6 +122,7 @@ export default function Profile({ navigation, route }) {
         setPlayStore(dataSet.PlayStore);
         setAppleStore(dataSet.AppleStore);
         setPhone(dataSet.PhoneLink);
+        setPhone2(dataSet.PhoneLink2);
         setFacebook(dataSet.Facebook);
         setTwitter(dataSet.Twitter);
         setInstagram(dataSet.Instagram);
@@ -106,6 +138,7 @@ export default function Profile({ navigation, route }) {
   useEffect(() => {
     getUserData();
     linkData();
+    userInfo2();
   }, []);
 
   function RateUs() {
@@ -278,19 +311,23 @@ export default function Profile({ navigation, route }) {
         <View style={{ backgroundColor: "white", borderRadius: 20 }}>
           <View style={styles2.modalView}>
             <View style={{ flexDirection: "row", padding: 5, width: "100%" }}>
-              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={{
+                  position: "absolute",
+                  left: 5,
+                  borderRadius: 20,
+                  backgroundColor: "red",
+                }}
+              >
                 <Icon
                   name="close"
                   size={25}
                   style={{
-                    position: "absolute",
-                    left: 5,
-                    borderRadius: 20,
                     color: "white",
-                    backgroundColor: "red",
                   }}
                 />
-              </TouchableWithoutFeedback>
+              </TouchableOpacity>
               <Text style={styles2.modalText}>CITY FOODS</Text>
             </View>
 
@@ -308,7 +345,7 @@ export default function Profile({ navigation, route }) {
             </Text>
             <Text style={{ textAlign: "center" }}>
               Inquiries / Queries{"\n"}Call{"\n"}
-              {phoneLink}
+              {phoneLink} / {phoneLink2}
             </Text>
             <View style={{ alignSelf: "center" }}>
               <Text>─────────────────────────</Text>
@@ -466,16 +503,29 @@ export default function Profile({ navigation, route }) {
                 >
                   My Coupons
                 </Text>
-                <Icon
-                  name="arrow-right-thin-circle-outline"
-                  size={30}
-                  style={{
-                    position: "absolute",
-                    right: 10,
-                    alignSelf: "center",
-                    color: "grey",
-                  }}
-                />
+                {isAvailable ? (
+                  <Icon
+                    name="arrow-right-circle"
+                    size={30}
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      alignSelf: "center",
+                      color: "red",
+                    }}
+                  />
+                ) : (
+                  <Icon
+                    name="arrow-right-thin-circle-outline"
+                    size={30}
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      alignSelf: "center",
+                      color: "grey",
+                    }}
+                  />
+                )}
               </View>
             </TouchableOpacity>
 

@@ -1798,7 +1798,7 @@ export default function TourPage({ navigation }) {
                 Friend
               </Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+            <TouchableOpacity onPress={() => setSnackIsVisible(true)}>
               <Image
                 source={require("../../assets/monkey.png")}
                 style={{ width: 40, height: 40 }}
