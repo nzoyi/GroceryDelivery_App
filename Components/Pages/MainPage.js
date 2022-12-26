@@ -192,12 +192,42 @@ export default function MainPage({ navigation }) {
     };
   }
 
+  const [isAvailable, setIsAvailable] = useState(false);
+  const itemsRef11 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+
+  function userInfo2() {
+    let isMounted = true;
+    itemsRef11.on("value", (snapshot) => {
+      if (isMounted) {
+        if (snapshot.exists()) {
+          snapshot.forEach((child) => {
+            let dataVal = child.val();
+
+            var given = moment(dataVal.ExpiryDate, "DD/MM/YYYY");
+            var current = moment().startOf("day");
+
+            const finalDate = moment.duration(given.diff(current)).asDays();
+            if (finalDate > 0 && dataVal.Used == "No") {
+              setIsAvailable(true);
+            }
+          });
+        } else {
+          setIsAvailable(false);
+        }
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }
+
   useEffect(() => {
     getUserData();
     ItemImages();
     itemCart();
     ItemImages2();
     linkData();
+    userInfo2();
   }, []);
 
   let arry = [
@@ -1901,19 +1931,46 @@ export default function MainPage({ navigation }) {
                 {userName}
               </Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-              {uImage ? (
-                <Image
-                  source={{ uri: uImage }}
-                  style={{ width: 40, height: 40, borderRadius: 20 }}
-                />
-              ) : (
-                <Image
-                  source={require("../../assets/monkey.png")}
-                  style={{ width: 40, height: 40 }}
-                />
-              )}
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableWithoutFeedback
+                onPress={() => navigation.navigate("Coupons")}
+              >
+                <View style={{ marginRight: 10 }}>
+                  {isAvailable ? (
+                    <Icon
+                      name="wallet-giftcard"
+                      size={40}
+                      style={{
+                        color: "red",
+                      }}
+                    />
+                  ) : (
+                    <Icon
+                      name="wallet-giftcard"
+                      size={40}
+                      style={{
+                        right: 10,
+                        color: "grey",
+                      }}
+                    />
+                  )}
+                </View>
+              </TouchableWithoutFeedback>
+
+              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                {uImage ? (
+                  <Image
+                    source={{ uri: uImage }}
+                    style={{ width: 40, height: 40, borderRadius: 20 }}
+                  />
+                ) : (
+                  <Image
+                    source={require("../../assets/monkey.png")}
+                    style={{ width: 40, height: 40 }}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
           <View
             style={{

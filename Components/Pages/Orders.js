@@ -29,6 +29,7 @@ import moment from "moment";
 import GetItems from "./GetItems";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { LinearGradient } from "expo-linear-gradient";
 import { TextInput } from "react-native";
 
 function showToast(msg) {
@@ -89,6 +90,7 @@ export default function Orders({ navigation, route }) {
           });
         });
         setItemArray(itemArray.reverse());
+        //console.log(itemArray);
       }
     });
     return () => {
@@ -121,97 +123,137 @@ export default function Orders({ navigation, route }) {
   const ShowOrders = () => {
     return (
       <View>
-        {itemArray.map((items, index) => (
-          <View
-            style={{
-              margin: 10,
-              backgroundColor: "white",
-              elevation: 5,
-              padding: 10,
-              minHeight: 100,
-            }}
-            key={index}
-          >
-            <View style={{ flexDirection: "column" }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={{ fontSize: 16, fontWeight: "700" }}>
-                  Order Date:{" "}
-                  {moment(items.key.Date).format("DD/MM/YYYY, h:mm:ss a")}
-                </Text>
-                {items.key.Status == "Delivered" ? null : items.key.Status ==
-                  "Pending" ? (
-                  <TouchableOpacity
-                    onPress={() =>
-                      cancelOrder({
-                        Payment: items.key.PaymentMethod,
-                        id: items.id,
-                      })
-                    }
-                  >
-                    <Text style={{ color: "red", fontWeight: "600" }}>
-                      Cancel Order
-                    </Text>
-                  </TouchableOpacity>
-                ) : items.key.Status == "Cancelled" ? null : (
-                  <TouchableOpacity
-                    onPress={() =>
-                      cancelOrder({
-                        Payment: items.key.PaymentMethod,
-                        id: items.id,
-                      })
-                    }
-                  >
-                    <Text style={{ color: "red", fontWeight: "600" }}>
-                      Cancel Order
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              <Text>Ordered Items</Text>
-            </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {itemArray.map((items, index) => (
             <View
-              style={{ flexDirection: "row", minHeight: 50, marginLeft: 10 }}
+              style={{
+                margin: 10,
+                backgroundColor: "white",
+                elevation: 5,
+                minHeight: 100,
+              }}
+              key={index}
             >
-              <View style={styles.verticleLine}></View>
-              <GetItems id={items.id} />
+              <View style={{ flexDirection: "column", padding: 10 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={{ fontSize: 16, fontWeight: "700" }}>
+                    Order Date:{" "}
+                    {moment(items.key.Date).format("DD/MM/YYYY, h:mm:ss a")}
+                  </Text>
+                  {items.key.Status == "Delivered" ? null : items.key.Status ==
+                    "Pending" ? (
+                    <TouchableOpacity
+                      onPress={() =>
+                        cancelOrder({
+                          Payment: items.key.PaymentMethod,
+                          id: items.id,
+                        })
+                      }
+                    >
+                      <Text style={{ color: "red", fontWeight: "600" }}>
+                        Cancel Order
+                      </Text>
+                    </TouchableOpacity>
+                  ) : items.key.Status == "Cancelled" ? null : (
+                    <TouchableOpacity
+                      onPress={() =>
+                        cancelOrder({
+                          Payment: items.key.PaymentMethod,
+                          id: items.id,
+                        })
+                      }
+                    >
+                      <Text style={{ color: "red", fontWeight: "600" }}>
+                        Cancel Order
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <Text>Ordered Items</Text>
+              </View>
+              <View
+                style={{ flexDirection: "row", minHeight: 50, marginLeft: 10 }}
+              >
+                <View style={styles.verticleLine}></View>
+                <GetItems id={items.id} />
+              </View>
+              <View style={{ flexDirection: "column", marginTop: 10 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ flexDirection: "column", padding: 10 }}>
+                    <Text>Payment Method {items.key.PaymentMethod}</Text>
+                    <Text style={{ fontWeight: "500" }}>
+                      Charge Price : UGX{" "}
+                      <CalcPrice
+                        p1={items.key.Amount}
+                        p3={items.key.TransportFee}
+                      />
+                    </Text>
+                    <Text style={{ fontWeight: "500" }}>
+                      Transport Fee : UGX {items.key.TransportFee}
+                    </Text>
+
+                    <Text style={{ fontSize: 16, fontWeight: "700" }}>
+                      Total Price : UGX{items.key.Amount}
+                    </Text>
+                    {items.key.Status == "Pending" ? (
+                      <Text style={{ color: "blue", fontWeight: "700" }}>
+                        Order Pending
+                      </Text>
+                    ) : items.key.Status == "Transit" ? (
+                      <Text style={{ color: "orange", fontWeight: "700" }}>
+                        Order Arriving Soon
+                      </Text>
+                    ) : items.key.Status == "Cancelled" ? (
+                      <Text style={{ color: "red", fontWeight: "700" }}>
+                        Order Cancelled
+                      </Text>
+                    ) : (
+                      <Text style={{ color: "green", fontWeight: "700" }}>
+                        Order Delivered
+                      </Text>
+                    )}
+                  </View>
+                  {items.key.Offer ? (
+                    <LinearGradient
+                      style={{
+                        backgroundColor: "blue",
+                        height: 60,
+                        padding: 5,
+                        width: 100,
+                        borderTopLeftRadius: 20,
+                        borderBottomLeftRadius: 20,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      locations={[0, 0.8]}
+                      colors={["#1c8ef8", "#1cf8ea"]}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "800",
+                          fontSize: 18,
+                          color: "white",
+                        }}
+                      >
+                        {items.key.Offer}% Off
+                      </Text>
+                    </LinearGradient>
+                  ) : null}
+                </View>
+              </View>
             </View>
-            <View style={{ flexDirection: "column", marginTop: 10 }}>
-              <Text>Payment Method {items.key.PaymentMethod}</Text>
-              <Text style={{ fontWeight: "500" }}>
-                Charge Price : UGX{" "}
-                <CalcPrice p1={items.key.Amount} p3={items.key.TransportFee} />
-              </Text>
-              <Text style={{ fontWeight: "500" }}>
-                Transport Fee : UGX {items.key.TransportFee}
-              </Text>
-              <Text style={{ fontSize: 16, fontWeight: "700" }}>
-                Total Price : UGX{items.key.Amount}
-              </Text>
-              {items.key.Status == "Pending" ? (
-                <Text style={{ color: "blue", fontWeight: "700" }}>
-                  Order Pending
-                </Text>
-              ) : items.key.Status == "Transit" ? (
-                <Text style={{ color: "orange", fontWeight: "700" }}>
-                  Order Arriving Soon
-                </Text>
-              ) : items.key.Status == "Cancelled" ? (
-                <Text style={{ color: "red", fontWeight: "700" }}>
-                  Order Cancelled
-                </Text>
-              ) : (
-                <Text style={{ color: "green", fontWeight: "700" }}>
-                  Order Delivered
-                </Text>
-              )}
-            </View>
-          </View>
-        ))}
+          ))}
+        </ScrollView>
       </View>
     );
   };
@@ -493,55 +535,53 @@ export default function Orders({ navigation, route }) {
           <Text style={{ fontSize: 20, fontWeight: "700", marginLeft: 10 }}>
             Orders
           </Text>
-          <TouchableOpacity
-            onPress={() => setShowBottom(true)}
-            style={{
-              position: "absolute",
-              right: 10,
-            }}
-          >
-            <Text
+          {itemArray.length == 0 ? null : (
+            <TouchableOpacity
+              onPress={() => setShowBottom(true)}
               style={{
-                fontSize: 20,
-                fontWeight: "700",
-                color: "blue",
+                position: "absolute",
+                right: 10,
               }}
             >
-              Support
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{ flex: 1 }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {itemArray.length > 0 ? (
-              <ShowOrders />
-            ) : (
-              <View
+              <Text
                 style={{
-                  position: "absolute",
-                  justifyContent: "center",
-                  alignSelf: "center",
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
+                  fontSize: 20,
+                  fontWeight: "700",
+                  color: "blue",
                 }}
               >
-                <Text style={{ textAlign: "center", fontSize: 20 }}>
-                  No Items Available
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("MainPage")}
+                Support
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        <View style={{ flex: 1 }}>
+          {itemArray.length == 0 ? (
+            <View
+              style={{
+                position: "absolute",
+                justifyContent: "center",
+                alignSelf: "center",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+              }}
+            >
+              <Text style={{ textAlign: "center", fontSize: 20 }}>
+                No Items Available
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("MainPage")}>
+                <Text
+                  style={{ textAlign: "center", fontSize: 20, color: "blue" }}
                 >
-                  <Text
-                    style={{ textAlign: "center", fontSize: 20, color: "blue" }}
-                  >
-                    Order Now
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </ScrollView>
+                  Order Now
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <ShowOrders />
+          )}
         </View>
         <BottomSheet visible={showBottom} onBackButtonPress={toggleBottom}>
           <View style={styles2.bottomNavigationView}>

@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 import SplashScreen from "./Components/Pages/SplashScreen";
 import MainPage from "./Components/Pages/MainPage";
@@ -20,9 +20,71 @@ import Coupons from "./Components/Pages/Coupons";
 import Settings from "./Components/Pages/Settings";
 import TourPage from "./Components/Pages/TourPage";
 
+import messaging from "@react-native-firebase/messaging";
+import { Alert } from "react-native";
+
 const { Navigator, Screen } = createNativeStackNavigator();
 
 export default function App() {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState("Home");
+
+  const requestUserPermission = async () => {
+    const authStatus = await messaging().requestUserPermission();
+    const enabled =
+      authStatus == messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus == messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log("Authorization status", authStatus);
+    }
+  };
+
+  useEffect(() => {
+    if (requestUserPermission()) {
+      messaging()
+        .getToken()
+        .then((token) => {
+          console.log(token);
+        });
+    } else {
+      console.log("Failed token status");
+    }
+
+    messaging()
+      .getInitialNotification()
+      .then(async (remoteMessage) => {
+        if (remoteMessage) {
+          console.log(
+            "Notification caused app to open from quit state:",
+            remoteMessage.notification
+          );
+          //setInitialRoute(remoteMessage.data.type); // e.g. "Settings"
+        }
+        setLoading(false);
+      });
+
+    messaging().onNotificationOpenedApp(async (remoteMessage) => {
+      console.log(
+        "Notification caused app to open from background state:",
+        remoteMessage.notification
+      );
+      //navigation.navigate(remoteMessage.data.type);
+    });
+
+    // Register background handler
+    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+      console.log("Message handled in the background!", remoteMessage);
+    });
+
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      Alert.alert("A new FCM message arrived!", JSON.stringify(remoteMessage));
+    });
+
+    return unsubscribe;
+  }, []);
+
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
   useEffect(() => {
     AsyncStorage.getItem("alreadyLaunched").then((value) => {

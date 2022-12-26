@@ -40,7 +40,8 @@ import { ActivityIndicator, TextInput } from "react-native-paper";
 import PhoneInput from "react-native-phone-number-input";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
-
+import { LinearGradient } from "expo-linear-gradient";
+import moment from "moment";
 WebBrowser.maybeCompleteAuthSession();
 
 function showToast(msg) {
@@ -180,6 +181,9 @@ export default function Login({ navigation }) {
     );
   };
 
+  let date = moment().add(10, "days").calendar();
+  let finalDate = moment(date).format("DD/MM/YYYY");
+
   const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
   const [displayCurrentAddress, setDisplayCurrentAddress] = useState(
     "Wait, we are fetching you location..."
@@ -304,10 +308,29 @@ export default function Login({ navigation }) {
               iso: iso.toLowerCase(),
             })
             .then(() => {
-              setLoading(false);
-              navigation.replace("MainPage");
-              user.sendEmailVerification();
-              showToast("Email Verification sent");
+              const recKey = db
+                .ref("UserAccounts/" + user.uid + "/Coupons")
+                .push().key;
+              const itemData = db.ref(
+                "UserAccounts/" + user.uid + "/Coupons/" + recKey
+              );
+              itemData
+                .set({
+                  Coupon: "Welcome Bonus",
+                  ExpiryDate: finalDate,
+                  Image:
+                    "https://firebasestorage.googleapis.com/v0/b/cityfoods-70f48.appspot.com/o/Coupons%2FWelcome%20Bonux.png?alt=media&token=4cef03ea-ae28-4a19-be6c-eef67a3eafc0",
+                  Offer: 5,
+                  PromoCode: "WELCOME",
+                  Used: "No",
+                  id: recKey,
+                })
+                .then(() => {
+                  setLoading(false);
+                  navigation.replace("MainPage");
+                  user.sendEmailVerification();
+                  showToast("Email Verification sent");
+                });
             });
         })
         .catch((error) => {
@@ -356,358 +379,390 @@ export default function Login({ navigation }) {
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <ImageBackground
-            source={require("../../assets/bg_orange.jpg")}
-            blurRadius={10}
-            borderBottomRightRadius={200}
-            style={{
-              backgroundColor: "white",
-              borderBottomRightRadius: 200,
-              height: 300,
-              elevation: 10,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            resizeMode="stretch"
+            source={require("../../assets/background.png")}
+            style={{ width: "100%", height: "100%" }}
           >
-            <Image
-              source={require("../../assets/cityFoods.png")}
+            <ImageBackground
+              source={require("../../assets/bg_orange.jpg")}
+              blurRadius={10}
+              borderBottomRightRadius={200}
               style={{
-                width: 150,
-                height: 150,
-                alignSelf: "center",
+                backgroundColor: "white",
+                borderBottomRightRadius: 200,
+                height: 300,
                 elevation: 10,
+                justifyContent: "center",
+                alignItems: "center",
               }}
-            />
-          </ImageBackground>
-          <View style={{ marginTop: 10 }}>
-            <View style={{ right: 10 }}>
-              <Text
+            >
+              <Image
+                source={require("../../assets/cityFoods.png")}
                 style={{
-                  fontSize: 25,
-                  fontWeight: "800",
-                  alignSelf: "flex-end",
+                  width: 150,
+                  height: 150,
+                  alignSelf: "center",
+                  elevation: 10,
                 }}
-              >
-                WELCOME
-              </Text>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "500",
-                  alignSelf: "flex-end",
-                }}
-              >
-                BACK
-              </Text>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "500",
-                  alignSelf: "flex-end",
-                }}
-              >
-                Let's get started Now
-              </Text>
-            </View>
-
-            {login ? (
-              <View>
+              />
+            </ImageBackground>
+            <View style={{ marginTop: 10 }}>
+              <View style={{ right: 10 }}>
                 <Text
                   style={{
-                    fontSize: 20,
+                    fontSize: 25,
                     fontWeight: "800",
-                    alignSelf: "center",
-                    marginTop: 20,
+                    alignSelf: "flex-end",
                   }}
                 >
-                  Login
+                  WELCOME
                 </Text>
-                <View style={styles.searchInputContainer}>
-                  <Icon name="email" size={20} style={{ marginLeft: 20 }} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter Email"
-                    keyboardType="email-address"
-                    underlineColor="transparent"
-                    defaultValue={email}
-                    onChangeText={setEmail}
-                  />
-                </View>
-                <View style={styles.searchInputContainer}>
-                  <Icon name="lock" size={20} style={{ marginLeft: 20 }} />
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={(text) => onPassword(text)}
-                    value={password}
-                    underlineColor="transparent"
-                    maxLength={15}
-                    placeholder="Password"
-                    secureTextEntry={passwordVisible}
-                    right={
-                      <TextInput.Icon
-                        name={passwordVisible ? "eye" : "eye-off"}
-                        onPress={() => setPasswordVisible(!passwordVisible)}
-                      />
-                    }
-                  />
-                </View>
-                <TouchableOpacity
-                  onPress={() => {
-                    handleLogin();
-                  }}
+                <Text
                   style={{
-                    marginTop: 10,
-                    backgroundColor: "#35d3db",
-                    borderRadius: 10,
-                    padding: 10,
-                    width: 200,
+                    fontSize: 18,
+                    fontWeight: "500",
+                    alignSelf: "flex-end",
+                  }}
+                >
+                  BACK
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "500",
+                    alignSelf: "flex-end",
+                  }}
+                >
+                  Let's get started Now
+                </Text>
+              </View>
+
+              {login ? (
+                <View
+                  style={{
+                    backgroundColor: "white",
+                    padding: 5,
+                    width: "80%",
                     alignSelf: "center",
+                    borderRadius: 10,
                   }}
                 >
                   <Text
                     style={{
                       fontSize: 20,
-                      fontWeight: "300",
-                      textAlign: "center",
-                      color: "white",
+                      fontWeight: "800",
+                      alignSelf: "center",
+                      marginTop: 20,
                     }}
                   >
                     Login
                   </Text>
-                </TouchableOpacity>
-                <Loader visible={loading} />
-                <Text
-                  style={{ alignSelf: "center", fontSize: 17, marginTop: 10 }}
-                >
-                  ----------OR-----------
-                </Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginBottom: 10,
-                    marginTop: 10,
-                    justifyContent: "space-evenly",
-                  }}
-                >
-                  <TouchableWithoutFeedback onPress={() => setlogin(false)}>
-                    <Text
-                      style={{
-                        fontSize: 20,
-                        fontWeight: "500",
-                        textAlign: "center",
-                        color: "blue",
-                      }}
-                    >
-                      Sign Up
-                    </Text>
-                  </TouchableWithoutFeedback>
-
-                  <View style={styles.verticleLine}></View>
-
+                  <View style={styles.searchInputContainer}>
+                    <Icon name="email" size={20} style={{ marginLeft: 20 }} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter Email"
+                      keyboardType="email-address"
+                      underlineColor="transparent"
+                      defaultValue={email}
+                      onChangeText={setEmail}
+                    />
+                  </View>
+                  <View style={styles.searchInputContainer}>
+                    <Icon name="lock" size={20} style={{ marginLeft: 20 }} />
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={(text) => onPassword(text)}
+                      value={password}
+                      underlineColor="transparent"
+                      maxLength={15}
+                      placeholder="Password"
+                      secureTextEntry={passwordVisible}
+                      right={
+                        <TextInput.Icon
+                          name={passwordVisible ? "eye" : "eye-off"}
+                          onPress={() => setPasswordVisible(!passwordVisible)}
+                        />
+                      }
+                    />
+                  </View>
                   <TouchableWithoutFeedback
-                    onPress={() => navigation.navigate("TourPage")}
+                    onPress={() => {
+                      handleLogin();
+                    }}
                   >
-                    <Text
+                    <LinearGradient
                       style={{
-                        fontSize: 20,
-                        fontWeight: "500",
-                        textAlign: "center",
-                        color: "blue",
+                        borderRadius: 10,
+                        marginTop: 10,
+                        padding: 10,
+                        width: 200,
+                        alignSelf: "center",
+                        backgroundColor: "transparent",
                       }}
+                      locations={[0, 1]}
+                      colors={["#1c8ef8", "#1cf8ea"]}
                     >
-                      Take a Tour
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          fontWeight: "300",
+                          textAlign: "center",
+                          color: "white",
+                        }}
+                      >
+                        Login
+                      </Text>
+                    </LinearGradient>
                   </TouchableWithoutFeedback>
-                </View>
-              </View>
-            ) : (
-              <View>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: "800",
-                    alignSelf: "center",
-                    marginTop: 20,
-                  }}
-                >
-                  Sign Up
-                </Text>
-                <View style={styles.searchInputContainer}>
-                  <Icon
-                    name="account-circle"
-                    size={20}
-                    style={{ marginLeft: 20 }}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter Full Name"
-                    keyboardType="default"
-                    underlineColor="transparent"
-                    defaultValue={username}
-                    onChangeText={setUsername}
-                  />
-                </View>
-
-                <View style={styles.searchInputContainer}>
-                  <Icon name="email" size={20} style={{ marginLeft: 20 }} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter Email"
-                    keyboardType="email-address"
-                    underlineColor="transparent"
-                    defaultValue={email}
-                    onChangeText={setEmail}
-                  />
-                </View>
-                <View style={styles.searchInputContainer2}>
-                  <PhoneInput
-                    ref={phoneInput}
-                    defaultValue={phone}
-                    defaultCode="UG"
-                    layout="first"
-                    onChangeText={(text) => {
-                      setPhone(text);
-                    }}
-                    onChangeFormattedText={(text) => {
-                      setFormattedValue(text);
-                    }}
-                  />
-                </View>
-
-                <View style={styles.searchInputContainer}>
-                  <Icon name="lock" size={20} style={{ marginLeft: 20 }} />
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={(text) => onPassword(text)}
-                    value={password}
-                    underlineColor="transparent"
-                    maxLength={15}
-                    placeholder="Password"
-                    secureTextEntry={passwordVisible}
-                  />
-                </View>
-
-                <View style={styles.searchInputContainer}>
-                  <Icon name="lock" size={20} style={{ marginLeft: 20 }} />
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={(text) => onPassword2(text)}
-                    value={password2}
-                    underlineColor="transparent"
-                    maxLength={15}
-                    placeholder="Confirm Password"
-                    secureTextEntry={passwordVisible}
-                  />
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignSelf: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <CheckBox
-                    checkedIcon="dot-circle-o"
-                    uncheckedIcon="circle-o"
-                    checked={terms}
-                    onPress={getTerms}
-                  />
+                  <Loader visible={loading} />
                   <Text
+                    style={{ alignSelf: "center", fontSize: 17, marginTop: 10 }}
+                  >
+                    ----------OR-----------
+                  </Text>
+                  <View
                     style={{
-                      fontSize: 18,
-                      fontWeight: "600",
-                      marginLeft: -20,
+                      flexDirection: "row",
+                      marginBottom: 10,
+                      marginTop: 10,
+                      justifyContent: "space-evenly",
                     }}
                   >
-                    I agree to the
-                  </Text>
-                  <TouchableWithoutFeedback
-                    onPress={() => (onPress = { OpenLink })}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        fontWeight: "600",
-                        color: "blue",
-                        marginLeft: 5,
-                      }}
-                    >
-                      terms {"&"} Conditions{" "}
-                    </Text>
-                  </TouchableWithoutFeedback>
-                </View>
+                    <TouchableWithoutFeedback onPress={() => setlogin(false)}>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          fontWeight: "500",
+                          textAlign: "center",
+                          color: "blue",
+                        }}
+                      >
+                        Sign Up
+                      </Text>
+                    </TouchableWithoutFeedback>
 
-                <TouchableOpacity
-                  onPress={() => {
-                    handleSignUp();
-                  }}
+                    <View style={styles.verticleLine}></View>
+
+                    <TouchableWithoutFeedback
+                      onPress={() => navigation.navigate("TourPage")}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          fontWeight: "500",
+                          textAlign: "center",
+                          color: "blue",
+                        }}
+                      >
+                        Take a Tour
+                      </Text>
+                    </TouchableWithoutFeedback>
+                  </View>
+                </View>
+              ) : (
+                <View
                   style={{
-                    marginTop: 10,
-                    backgroundColor: "#35d3db",
-                    borderRadius: 10,
-                    padding: 10,
-                    width: 200,
+                    backgroundColor: "white",
+                    padding: 5,
+                    width: "80%",
                     alignSelf: "center",
+                    borderRadius: 10,
                   }}
                 >
                   <Text
                     style={{
                       fontSize: 20,
-                      fontWeight: "300",
-                      textAlign: "center",
-                      color: "white",
+                      fontWeight: "800",
+                      alignSelf: "center",
+                      marginTop: 20,
                     }}
                   >
-                    SignUp
+                    Sign Up
                   </Text>
-                </TouchableOpacity>
-                <Loader visible={loading} />
-                <Text
-                  style={{ alignSelf: "center", fontSize: 17, marginTop: 10 }}
-                >
-                  ----------OR-----------
-                </Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginBottom: 10,
-                    marginTop: 10,
-                    justifyContent: "space-evenly",
-                  }}
-                >
-                  <TouchableWithoutFeedback onPress={() => setlogin(true)}>
+                  <View style={styles.searchInputContainer}>
+                    <Icon
+                      name="account-circle"
+                      size={20}
+                      style={{ marginLeft: 20 }}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter Full Name"
+                      keyboardType="default"
+                      underlineColor="transparent"
+                      defaultValue={username}
+                      onChangeText={setUsername}
+                    />
+                  </View>
+
+                  <View style={styles.searchInputContainer}>
+                    <Icon name="email" size={20} style={{ marginLeft: 20 }} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter Email"
+                      keyboardType="email-address"
+                      underlineColor="transparent"
+                      defaultValue={email}
+                      onChangeText={setEmail}
+                    />
+                  </View>
+                  <View style={styles.searchInputContainer2}>
+                    <PhoneInput
+                      ref={phoneInput}
+                      defaultValue={phone}
+                      defaultCode="UG"
+                      layout="first"
+                      onChangeText={(text) => {
+                        setPhone(text);
+                      }}
+                      onChangeFormattedText={(text) => {
+                        setFormattedValue(text);
+                      }}
+                    />
+                  </View>
+
+                  <View style={styles.searchInputContainer}>
+                    <Icon name="lock" size={20} style={{ marginLeft: 20 }} />
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={(text) => onPassword(text)}
+                      value={password}
+                      underlineColor="transparent"
+                      maxLength={15}
+                      placeholder="Password"
+                      secureTextEntry={passwordVisible}
+                    />
+                  </View>
+
+                  <View style={styles.searchInputContainer}>
+                    <Icon name="lock" size={20} style={{ marginLeft: 20 }} />
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={(text) => onPassword2(text)}
+                      value={password2}
+                      underlineColor="transparent"
+                      maxLength={15}
+                      placeholder="Confirm Password"
+                      secureTextEntry={passwordVisible}
+                    />
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignSelf: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <CheckBox
+                      checkedIcon="dot-circle-o"
+                      uncheckedIcon="circle-o"
+                      checked={terms}
+                      onPress={getTerms}
+                    />
                     <Text
                       style={{
-                        fontSize: 20,
-                        fontWeight: "500",
-                        textAlign: "center",
-                        color: "blue",
+                        fontSize: 16,
+                        fontWeight: "600",
+                        marginLeft: -20,
                       }}
                     >
-                      Login
+                      I agree to the
                     </Text>
-                  </TouchableWithoutFeedback>
-
-                  <View style={styles.verticleLine}></View>
+                    <TouchableWithoutFeedback
+                      onPress={() => (onPress = { OpenLink })}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "600",
+                          color: "blue",
+                          marginLeft: 5,
+                        }}
+                      >
+                        terms {"&"} Conditions{" "}
+                      </Text>
+                    </TouchableWithoutFeedback>
+                  </View>
 
                   <TouchableWithoutFeedback
-                    onPress={() => navigation.navigate("TourPage")}
+                    onPress={() => {
+                      handleSignUp();
+                    }}
                   >
-                    <Text
+                    <LinearGradient
                       style={{
-                        fontSize: 20,
-                        fontWeight: "500",
-                        textAlign: "center",
-                        color: "blue",
+                        borderRadius: 10,
+                        marginTop: 10,
+                        padding: 10,
+                        width: 200,
+                        alignSelf: "center",
+                        backgroundColor: "transparent",
                       }}
+                      locations={[0, 1]}
+                      colors={["#1c8ef8", "#1cf8ea"]}
                     >
-                      Take a Tour
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          fontWeight: "300",
+                          textAlign: "center",
+                          color: "white",
+                        }}
+                      >
+                        SignUp
+                      </Text>
+                    </LinearGradient>
                   </TouchableWithoutFeedback>
+
+                  <Loader visible={loading} />
+                  <Text
+                    style={{ alignSelf: "center", fontSize: 17, marginTop: 10 }}
+                  >
+                    ----------OR-----------
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginBottom: 10,
+                      marginTop: 10,
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <TouchableWithoutFeedback onPress={() => setlogin(true)}>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          fontWeight: "500",
+                          textAlign: "center",
+                          color: "blue",
+                        }}
+                      >
+                        Login
+                      </Text>
+                    </TouchableWithoutFeedback>
+
+                    <View style={styles.verticleLine}></View>
+
+                    <TouchableWithoutFeedback
+                      onPress={() => navigation.navigate("TourPage")}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          fontWeight: "500",
+                          textAlign: "center",
+                          color: "blue",
+                        }}
+                      >
+                        Take a Tour
+                      </Text>
+                    </TouchableWithoutFeedback>
+                  </View>
                 </View>
-              </View>
-            )}
-            {/*     <TouchableWithoutFeedback onPress={() => Glogin()}>
+              )}
+              {/*     <TouchableWithoutFeedback onPress={() => Glogin()}>
               <View
                 style={{
                   alignSelf: "center",
@@ -727,15 +782,16 @@ export default function Login({ navigation }) {
               </View>
             </TouchableWithoutFeedback> */}
 
-            <Text style={{ alignSelf: "center", marginTop: 50 }}>
-              © Future Designs {new Date().getFullYear()}
-            </Text>
-            <Text
-              style={{ alignSelf: "center", marginTop: 10, marginBottom: 30 }}
-            >
-              Version 1.0.0
-            </Text>
-          </View>
+              <Text style={{ alignSelf: "center", marginTop: 50 }}>
+                © Future Designs {new Date().getFullYear()}
+              </Text>
+              <Text
+                style={{ alignSelf: "center", marginTop: 10, marginBottom: 30 }}
+              >
+                Version 1.0.0
+              </Text>
+            </View>
+          </ImageBackground>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -765,7 +821,7 @@ const styles = StyleSheet.create({
   },
   searchInputContainer2: {
     backgroundColor: "#f9f9f9",
-    width: "90%",
+    width: "80%",
     height: 60,
     borderRadius: 10,
     alignItems: "center",

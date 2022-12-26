@@ -258,7 +258,7 @@ export default function Coupons({ navigation, route }) {
               >
                 Until {items.ExpiryDate}
               </Text>
-              {items.Used == "No" ? (
+              {/*items.Used == "No" ? (
                 <Text
                   style={{
                     color: "black",
@@ -268,7 +268,7 @@ export default function Coupons({ navigation, route }) {
                 >
                   CODE: {items.PromoCode}
                 </Text>
-              ) : null}
+              ) : null*/}
               {items.Used == "No" ? (
                 <TouchableOpacity
                   onPress={() => navigation.navigate("Cart", items.PromoCode)}

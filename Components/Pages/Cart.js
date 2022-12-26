@@ -245,8 +245,10 @@ export default function Cart({ navigation, route }) {
         0
       );
       let math = promoPerc / 100;
-      let math2 = PriceNumber * math;
-      return PriceNumber - math2 + 5000;
+      let math2 = PriceNumber + 5000;
+      let math3 = math2 * math;
+      // console.log(math3);
+      return math2 - math3;
     } else {
       PriceNumber = itemArray.reduce(
         (sum, product) => sum + product.key.Price,
@@ -353,6 +355,7 @@ export default function Cart({ navigation, route }) {
               </Text>
             </TouchableOpacity>
           </View>
+
           <View
             style={{
               marginLeft: 10,
@@ -373,6 +376,7 @@ export default function Cart({ navigation, route }) {
             >
               <TouchableOpacity
                 onPress={() => OrderNow()}
+                disabled={pressed}
                 style={{
                   backgroundColor: "blue",
                   borderRadius: 5,
@@ -380,15 +384,27 @@ export default function Cart({ navigation, route }) {
                   padding: 10,
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: "white",
-                    fontWeight: "800",
-                  }}
-                >
-                  CASH ON DELIVERY
-                </Text>
+                {pressed ? (
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: "white",
+                      fontWeight: "800",
+                    }}
+                  >
+                    Please Wait....
+                  </Text>
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: "white",
+                      fontWeight: "800",
+                    }}
+                  >
+                    CASH ON DELIVERY
+                  </Text>
+                )}
               </TouchableOpacity>
 
               <PayWithFlutterwave
@@ -410,7 +426,7 @@ export default function Cart({ navigation, route }) {
                   <TouchableOpacity
                     onPress={props.onPress}
                     isBusy={props.isInitializing}
-                    disabled={props.disabled}
+                    disabled={pressed2}
                     style={{
                       backgroundColor: "orange",
                       borderRadius: 5,
@@ -472,7 +488,11 @@ export default function Cart({ navigation, route }) {
 
   const date = new Date().toLocaleString();
 
+  const [pressed, setPressed] = useState(false);
+  const [pressed2, setPressed2] = useState(false);
+
   function OrderNow() {
+    setPressed(true);
     const itemsRef6 = db.ref("Cart/" + user.uid);
     itemArray.map((items) => {
       const itemsRef = db
@@ -508,6 +528,9 @@ export default function Cart({ navigation, route }) {
           itemsRef3.child("Amount").set(getTotal());
           itemsRef3.child("PaymentMethod").set("Cash On Delivery");
           itemsRef3.child("Status").set("Pending");
+          if (promoPerc > 0) {
+            itemsRef3.child("Offer").set(promoPerc);
+          }
           itemsRef3
             .child("TransportFee")
             .set(5000)
@@ -527,6 +550,9 @@ export default function Cart({ navigation, route }) {
           itemsRef3.child("Amount").set(getTotal());
           itemsRef3.child("PaymentMethod").set("Cash On Delivery");
           itemsRef3.child("Status").set("Pending");
+          if (promoPerc > 0) {
+            itemsRef3.child("Offer").set(promoPerc);
+          }
           itemsRef3.child("Name").set(username);
           itemsRef3.child("Phone").set(phone);
           itemsRef3.child("Location").set(address2 + " - " + address3);
@@ -534,9 +560,13 @@ export default function Cart({ navigation, route }) {
             .child("TransportFee")
             .set(5000)
             .then(() => {
+              setPressed(false);
               itemsRef6
                 .remove()
-                .then(() => navigation.navigate("Orders"))
+                .then(() => {
+                  setPressed(false);
+                  navigation.navigate("Orders");
+                })
                 .catch((error) => showToast("Error" + error));
             })
             .catch((error) => showToast("error" + error));
@@ -546,6 +576,8 @@ export default function Cart({ navigation, route }) {
   }
 
   function OrderNow2() {
+    setPressed2(true);
+
     const itemsRef6 = db.ref("Cart/" + user.uid);
     itemArray.map((items) => {
       const itemsRef = db
@@ -586,6 +618,9 @@ export default function Cart({ navigation, route }) {
           itemsRef3.child("Date").set("" + date);
           itemsRef3.child("Amount").set(getTotal());
           itemsRef3.child("PaymentMethod").set("MobileMoney");
+          if (promoPerc > 0) {
+            itemsRef3.child("Offer").set(promoPerc);
+          }
           itemsRef3.child("Status").set("Pending");
           itemsRef3
             .child("TransportFee")
@@ -606,6 +641,9 @@ export default function Cart({ navigation, route }) {
           itemsRef3.child("Amount").set(getTotal());
           itemsRef3.child("PaymentMethod").set("MobileMoney");
           itemsRef3.child("Status").set("Pending");
+          if (promoPerc > 0) {
+            itemsRef3.child("Offer").set(promoPerc);
+          }
           itemsRef3.child("Name").set(username);
           itemsRef3.child("Phone").set(phone);
           itemsRef3.child("Location").set(address2 + " - " + address3);
@@ -615,7 +653,10 @@ export default function Cart({ navigation, route }) {
             .then(() => {
               itemsRef6
                 .remove()
-                .then(() => navigation.navigate("Orders"))
+                .then(() => {
+                  navigation.navigate("Orders");
+                  setPressed2(true);
+                })
                 .catch((error) => showToast("Error" + error));
             })
             .catch((error) => showToast("error" + error));
