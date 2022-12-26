@@ -38,7 +38,7 @@ import { CheckBox } from "react-native-elements";
 import * as Location from "expo-location";
 import { ActivityIndicator, TextInput } from "react-native-paper";
 import PhoneInput from "react-native-phone-number-input";
-import * as Google from "expo-auth-session/providers/google";
+
 import * as WebBrowser from "expo-web-browser";
 import { LinearGradient } from "expo-linear-gradient";
 import moment from "moment";
@@ -341,7 +341,7 @@ export default function Login({ navigation }) {
   }
 
   //google SignUp
-  const [accessToken, setAccessToken] = useState();
+  /* const [accessToken, setAccessToken] = useState();
   const [userInfo, setUserInfo] = useState();
   const [message, setMessage] = useState();
 
@@ -359,7 +359,7 @@ export default function Login({ navigation }) {
     if (response?.type === "success") {
       setAccessToken(response.authentication.accessToken);
     }
-  }, [response]);
+  }, [response]);*/
 
   const Glogin = async () => {
     let userInfoResponse = await fetch(
