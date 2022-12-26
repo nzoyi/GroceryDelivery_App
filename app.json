@@ -49,6 +49,7 @@
         "foregroundImage": "./assets/cityFoods.png",
         "backgroundColor": "#FFFFFF"
       },
+      "googleServicesFile":"./google-services.json",
       "package": "com.futuredesigns.cityfoods"
     },
     "web": {

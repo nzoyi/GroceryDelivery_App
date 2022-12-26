@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "1025016915176-02i3ldf7ortkdjveq56td29vo0orujj9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.futuredesigns.cityfoods",
+            "certificate_hash": "cbd7f179d36646df4bc542960300c155f61d25e5"
+          }
+        },
+        {
+          "client_id": "1025016915176-vl3ic22dge6bn5bl2h02s7sa1a0knejt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.futuredesigns.cityfoods",
+            "certificate_hash": "a638dfdcbf664522c4a9e573932215d17cff43d4"
+          }
+        },
+        {
           "client_id": "1025016915176-5s0bbab2gira435j04khh7bqdauafahq.apps.googleusercontent.com",
           "client_type": 3
         }
