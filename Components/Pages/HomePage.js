@@ -8,14 +8,7 @@ import {
   BackHandler,
   TouchableWithoutFeedback,
 } from "react-native";
-import Constants from "expo-constants";
-import COLORS from "../../Colors/Colors";
 import { Image } from "react-native";
-import { auth, firebase } from "../Connection/firebaseDB";
-// Using DB Reference
-import { db } from "../Connection/firebaseDB";
-
-import Icon from "react-native-vector-icons/MaterialIcons";
 
 import {
   useColorScheme,
@@ -26,17 +19,8 @@ import {
   Pressable,
   Modal,
 } from "react-native";
-import { ScrollView } from "react-native";
-import { FlatList } from "react-native";
 import { ImageBackground } from "react-native";
-import { TextInput } from "react-native";
-import { StatusBar } from "react-native";
 import { SafeAreaView } from "react-native";
-import { BottomSheet } from "react-native-btr";
-import moment from "moment";
-import { LogBox } from "react-native";
-import * as Location from "expo-location";
-import { ActivityIndicator } from "react-native-paper";
 
 function showToast(msg) {
   if (Platform.OS === "android") {

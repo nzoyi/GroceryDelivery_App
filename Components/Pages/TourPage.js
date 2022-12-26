@@ -41,7 +41,6 @@ import { LogBox } from "react-native";
 import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating";
-import { isValid } from "date-fns";
 
 function showToast(msg) {
   if (Platform.OS === "android") {

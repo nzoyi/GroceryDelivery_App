@@ -22,6 +22,7 @@ import TourPage from "./Components/Pages/TourPage";
 
 import messaging from "@react-native-firebase/messaging";
 import { Alert } from "react-native";
+import * as Updates from "expo-updates";
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -39,6 +40,18 @@ export default function App() {
     if (enabled) {
       console.log("Authorization status", authStatus);
     }
+  };
+
+  useEffect(() => {
+    reactToUpdates();
+  });
+
+  const reactToUpdates = async () => {
+    Updates.addListener((event) => {
+      if (event.type == Updates.UpdateEventType.UPDATE_AVAILABLE) {
+        alert("An Update is available, Resart your app to see it");
+      }
+    });
   };
 
   useEffect(() => {

@@ -11,6 +11,16 @@
     "preview": {
       "distribution": "internal"
     },
+    "local": {
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview3": {
+      "android": {
+        "gradleCommand": ":app:assembleRelease"
+      }
+    },
     "production": {}
   },
   "submit": {
