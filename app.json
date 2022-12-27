@@ -12,9 +12,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 60000,
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD"
+      "fallbackToCacheTimeout": 10000,
+      "enabled": true
     },
     "androidStatusBar": {
       "barStyle": "light-content",
