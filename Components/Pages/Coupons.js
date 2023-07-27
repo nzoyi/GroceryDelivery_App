@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -41,6 +43,7 @@ import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating2";
 import ShowCalc from "./ShowCalc";
 import GetItems from "./GetItems";
+import { get, ref } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -80,11 +83,11 @@ export default function Coupons({ navigation, route }) {
 
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+  const itemsRef2 = ref(db, "UserAccounts/" + user.uid + "/Coupons/");
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {
@@ -109,7 +112,7 @@ export default function Coupons({ navigation, route }) {
   const RemoteImage = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 

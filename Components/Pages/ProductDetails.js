@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -40,6 +42,15 @@ import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating2";
 
 import StarRating from "react-native-star-rating-widget";
+import {
+  equalTo,
+  get,
+  orderByChild,
+  query,
+  ref,
+  remove,
+  set,
+} from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -86,11 +97,11 @@ export default function ProductDetails({ navigation, route }) {
   const [itemCategory, setItemCategory] = useState("");
   const [rating, setRating] = useState(0);
 
-  const itemsRef = db.ref("ItemsList/" + pId);
+  const itemsRef = ref(db, "ItemsList/" + pId);
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef.on("value", (snapshot) => {
+    get(itemsRef).then((snapshot) => {
       if (isMounted) {
         var itemArray2 = [];
         let dataVal = snapshot.val();
@@ -113,25 +124,28 @@ export default function ProductDetails({ navigation, route }) {
     GetRating2();
   }, []);
 
-  const itemsRef2 = db.ref("ItemsList/");
   function LoadCategory(category) {
     let isMounted = true;
-    itemsRef2
-      .orderByChild("Category")
-      .equalTo(category)
-      .on("value", (snapshot) => {
-        if (isMounted) {
-          var itemArray = [];
-          snapshot.forEach((child) => {
-            itemArray.push({
-              id: child.key,
-              key: child.val(),
-            });
+
+    const itemsRef2 = query(
+      ref(db, "ItemsList/"),
+      orderByChild("Category"),
+      equalTo(category)
+    );
+
+    get(itemsRef2).then((snapshot) => {
+      if (isMounted) {
+        var itemArray = [];
+        snapshot.forEach((child) => {
+          itemArray.push({
+            id: child.key,
+            key: child.val(),
           });
-          setItemArray(itemArray);
-          //console.log(itemArray);
-        }
-      });
+        });
+        setItemArray(itemArray);
+        //console.log(itemArray);
+      }
+    });
     return () => {
       isMounted = false;
     };
@@ -140,7 +154,7 @@ export default function ProductDetails({ navigation, route }) {
   const RemoteImage2 = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 
@@ -288,16 +302,16 @@ export default function ProductDetails({ navigation, route }) {
   }
 
   function AddToCart() {
-    const itemsRef = db.ref("Cart/" + user.uid).push();
-    itemsRef
-      .set({
-        id: pId,
-        Name: itemName,
-        Image: image,
-        Category: itemCategory,
-        Price: getFinal(),
-        Quantity: numberValue,
-      })
+    const itemsRef = ref(db, "Cart/" + user.uid).push();
+    itemsRef;
+    set({
+      id: pId,
+      Name: itemName,
+      Image: image,
+      Category: itemCategory,
+      Price: getFinal(),
+      Quantity: numberValue,
+    })
       .then(() => {
         showToast("Item Added Succesfully");
         navigation.navigate("Cart");
@@ -309,11 +323,11 @@ export default function ProductDetails({ navigation, route }) {
   const [total1, setTotal1] = useState();
   const [maxRates, setMaxRates] = useState([]);
 
-  const itemsRef4 = db.ref("ItemsList/" + pId + "/Rating/");
+  const itemsRef4 = ref(db, "ItemsList/" + pId + "/Rating/");
 
   function GetRating2() {
     let isMounted = true;
-    itemsRef4.on("value", (snapshot) => {
+    get(itemsRef4).then((snapshot) => {
       if (isMounted) {
         let maxRates = [];
         let total1 = 0;
@@ -367,11 +381,11 @@ export default function ProductDetails({ navigation, route }) {
   }
 
   if (user !== null) {
-    const itemsRef3 = db.ref("ItemsList/" + pId + "/Rating/" + user.uid);
+    const itemsRef3 = ref(db, "ItemsList/" + pId + "/Rating/" + user.uid);
 
     useEffect(() => {
       let isMounted = true;
-      itemsRef3.on("value", (snapshot) => {
+      get(itemsRef3).then((snapshot) => {
         if (isMounted) {
           if (snapshot.exists()) {
             let dataVal = snapshot.val();
@@ -388,15 +402,15 @@ export default function ProductDetails({ navigation, route }) {
   }
 
   if (rating && user !== null) {
-    const itemsRef = db.ref("ItemsList/" + pId + "/Rating/" + user.uid);
-    itemsRef.child("rating").set(rating);
+    const itemsRef = ref(db, "ItemsList/" + pId + "/Rating/" + user.uid);
+    set(itemsRef, { rating: rating });
   }
 
   function setFavorite() {
     let isValid = true;
 
-    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
-    itemsRef3.on("value", (snapshot) => {
+    const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/" + pId);
+    get(itemsRef3).then((snapshot) => {
       if (snapshot.exists()) {
         isValid = false;
       } else {
@@ -405,19 +419,19 @@ export default function ProductDetails({ navigation, route }) {
     });
 
     if (isValid) {
-      const itemsRef = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
-      itemsRef.child("id").set(pId);
+      const itemsRef = ref(db, "UserAccounts/" + user.uid + "/Favorite/" + pId);
+      set(itemsRef, { id: pId });
     } else {
-      const itemsRef = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
-      itemsRef.remove();
+      const itemsRef = ref(db, "UserAccounts/" + user.uid + "/Favorite/" + pId);
+      remove(itemsRef);
     }
   }
 
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
-    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
-    itemsRef3.on("value", (snapshot) => {
+    const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/" + pId);
+    get(itemsRef3).then((snapshot) => {
       if (snapshot.exists()) {
         setFav(true);
       } else {

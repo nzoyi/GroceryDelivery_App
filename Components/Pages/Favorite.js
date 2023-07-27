@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -24,6 +26,7 @@ import {
 import { ScrollView } from "react-native";
 import { TextInput } from "react-native";
 import { SafeAreaView } from "react-native";
+import { equalTo, get, orderByKey, query, ref } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -63,11 +66,11 @@ export default function Favorite({ navigation }) {
 
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
+  const itemsRef2 = ref(db, "UserAccounts/" + user.uid + "/Favorite/");
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
 
@@ -75,24 +78,24 @@ export default function Favorite({ navigation }) {
           snapshot.forEach((child) => {
             let dataVal = child.val();
 
-            //console.log(dataVal.id);
-            const itemsRef = db.ref("ItemsList/");
+            const itemsRef = query(
+              ref(db, "ItemsList/"),
+              orderByKey(),
+              equalTo(dataVal.id)
+            );
 
-            itemsRef
-              .orderByKey()
-              .equalTo(dataVal.id)
-              .on("value", (snapshot) => {
-                snapshot.forEach((child) => {
-                  itemArray.push({
-                    id: child.key,
-                    key: child.val(),
-                  });
-
-                  //console.log(child.val());
-                  setItemArray(itemArray);
-                  setFilteredDataSource(itemArray);
+            get(itemsRef).then((snapshot) => {
+              snapshot.forEach((child) => {
+                itemArray.push({
+                  id: child.key,
+                  key: child.val(),
                 });
+
+                //console.log(child.val());
+                setItemArray(itemArray);
+                setFilteredDataSource(itemArray);
               });
+            });
           });
         }
       }
@@ -104,11 +107,11 @@ export default function Favorite({ navigation }) {
 
   const [numProducts, setNumProducts] = useState("");
 
-  const itemsRef3 = db.ref("Cart/" + user.uid);
+  const itemsRef3 = ref(db, "Cart/" + user.uid);
 
   function itemCart() {
     let isMounted = true;
-    itemsRef3.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
         total1 += snapshot.numChildren();
@@ -124,10 +127,10 @@ export default function Favorite({ navigation }) {
   const [userName, setUsername] = useState("");
   const [uImage, setUImage] = useState("");
 
-  const userRef = db.ref("UserAccounts/" + user.uid);
+  const userRef = ref(db, "UserAccounts/" + user.uid);
   function getUserData() {
     let isMounted = true;
-    userRef.on("value", (snapshot) => {
+    get(userRef).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
 
@@ -184,7 +187,7 @@ export default function Favorite({ navigation }) {
   const RemoteImage2 = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 
@@ -204,7 +207,7 @@ export default function Favorite({ navigation }) {
 
   function setFavorite(pId) {
     let isValid = true;
-    const itemsRef = db.ref("UserAccounts/" + user.uid + "/Favorite/" + pId);
+    const itemsRef = ref(db, "UserAccounts/" + user.uid + "/Favorite/" + pId);
     itemsRef.remove();
   }
 
@@ -300,8 +303,8 @@ export default function Favorite({ navigation }) {
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
-    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
-    itemsRef3.on("value", (snapshot) => {
+    const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/");
+    itemsRef3.on("value").then((snapshot) => {
       if (snapshot.exists()) {
         setFav(true);
       } else {

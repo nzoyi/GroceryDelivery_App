@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Alert, Text } from "react-native";
 import Constants from "expo-constants";
@@ -20,6 +22,7 @@ import {
 } from "react-native";
 
 import StarRating from "react-native-star-rating-widget";
+import { get, ref } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -39,13 +42,14 @@ export default function GetItems({ id }) {
   let user = firebase.auth().currentUser;
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref(
+  const itemsRef2 = ref(
+    db,
     "UserAccounts/" + user.uid + "/Orders/" + id + "/Items"
   );
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {

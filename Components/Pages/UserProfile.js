@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -11,7 +13,7 @@ import {
 import Constants from "expo-constants";
 import COLORS from "../../Colors/Colors";
 import { Image } from "react-native";
-import { auth, firebase } from "../Connection/firebaseDB";
+import { auth, firebase, storage, storageRef } from "../Connection/firebaseDB";
 // Using DB Reference
 import { db } from "../Connection/firebaseDB";
 
@@ -35,6 +37,8 @@ import { SafeAreaView } from "react-native";
 import { BottomSheet } from "react-native-btr";
 import * as ImagePicker from "expo-image-picker";
 import { ActivityIndicator } from "react-native-paper";
+import { get, ref, set } from "firebase/database";
+import { getDownloadURL, uploadBytes } from "firebase/storage";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -90,11 +94,11 @@ export default function UserProfile({ navigation, route }) {
 
   const [loading, setLoading] = React.useState(false);
 
-  const itemsRef4 = db.ref("UserAccounts/" + user.uid);
+  const itemsRef4 = ref(db, "UserAccounts/" + user.uid);
 
   function userInfo() {
     let isMounted = true;
-    itemsRef4.on("value", (snapshot) => {
+    get(itemsRef4).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
         setUsername(dataVal.Name);
@@ -112,11 +116,11 @@ export default function UserProfile({ navigation, route }) {
 
   const [number1, setNumber1] = useState();
 
-  const itemsRef = db.ref("UserAccounts/" + user.uid + "/Orders/");
+  const itemsRef = ref(db, "UserAccounts/" + user.uid + "/Orders/");
 
   function userInfo2() {
     let isMounted = true;
-    itemsRef.on("value", (snapshot) => {
+    get(itemsRef).then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
         total1 += snapshot.numChildren();
@@ -131,11 +135,11 @@ export default function UserProfile({ navigation, route }) {
 
   const [number2, setNumber2] = useState();
 
-  const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+  const itemsRef2 = ref(db, "UserAccounts/" + user.uid + "/Coupons/");
 
   function userInfo3() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    itemsRef2.on("value").then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
         total1 += snapshot.numChildren();
@@ -181,13 +185,14 @@ export default function UserProfile({ navigation, route }) {
     setLoading(true);
     const response = await fetch(uri);
     const blob = await response.blob();
-    var ref = firebase.storage().ref("profiles/").child("profiles");
-    ref.put(blob).then((snapshot) => {
-      snapshot.ref.getDownloadURL().then((url) => {
-        const itemUpload2 = db
-          .ref("/UserAccounts/" + user.uid)
-          .child("Profile");
-        itemUpload2.set(url).then(() => {
+
+    const refData = storageRef(storage, "profiles/" + filename);
+
+    uploadBytes(refData, blob).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        const itemUpload2 = ref(db, "/UserAccounts/" + user.uid);
+
+        set(itemUpload2, { Profile: url }).then(() => {
           showToast("Uploaded Successfully");
           setLoading(false);
         });
@@ -198,7 +203,7 @@ export default function UserProfile({ navigation, route }) {
   const RemoteImage = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 
@@ -388,10 +393,9 @@ export default function UserProfile({ navigation, route }) {
     let isValid = true;
 
     if (newAddress2.length > 0) {
-      const itemsRef2 = db.ref("UserAccounts/" + user.uid);
-      itemsRef2
-        .child("City")
-        .set(newAddress2)
+      const itemsRef2 = ref(db, "UserAccounts/" + user.uid);
+
+      set(itemsRef2, { City: newAddress2 })
         .then(() => {
           isValid = true;
         })
@@ -399,10 +403,8 @@ export default function UserProfile({ navigation, route }) {
     }
 
     if (newAddress3.length > 0) {
-      const itemsRef2 = db.ref("UserAccounts/" + user.uid);
-      itemsRef2
-        .child("Locale")
-        .set(newAddress3)
+      const itemsRef2 = ref(db, "UserAccounts/" + user.uid);
+      set(itemsRef2, { Locale: newAddress3 })
         .then(() => {
           isValid = true;
         })
@@ -410,10 +412,9 @@ export default function UserProfile({ navigation, route }) {
     }
 
     if (newPhone.length > 0) {
-      const itemsRef2 = db.ref("UserAccounts/" + user.uid);
-      itemsRef2
-        .child("Contact")
-        .set("" + newPhone)
+      const itemsRef2 = ref(db, "UserAccounts/" + user.uid);
+
+      set(itemsRef2, { Contact: "" + newPhone })
         .then(() => {
           isValid = true;
         })

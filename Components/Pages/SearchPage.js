@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -37,6 +39,7 @@ import moment from "moment";
 import { LogBox } from "react-native";
 import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
+import { get, push, ref, set } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -76,11 +79,11 @@ export default function SearchPage({ navigation }) {
 
   const [numProducts, setNumProducts] = useState("");
 
-  const itemsRef3 = db.ref("Cart/" + user.uid);
+  const itemsRef3 = ref(db, "Cart/" + user.uid);
 
   function itemCart() {
     let isMounted = true;
-    itemsRef3.on("value", (snapshot) => {
+    get(itemsRef3).then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
         total1 += snapshot.numChildren();
@@ -95,11 +98,11 @@ export default function SearchPage({ navigation }) {
 
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref("ItemsList/");
+  const itemsRef2 = ref(db, "ItemsList/");
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {
@@ -120,10 +123,10 @@ export default function SearchPage({ navigation }) {
   const [userName, setUsername] = useState("");
   const [uImage, setUImage] = useState("");
 
-  const userRef = db.ref("UserAccounts/" + user.uid);
+  const userRef = ref(db, "UserAccounts/" + user.uid);
   function getUserData() {
     let isMounted = true;
-    userRef.on("value", (snapshot) => {
+    get(userRef).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
 
@@ -187,7 +190,7 @@ export default function SearchPage({ navigation }) {
   const RemoteImage = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 
@@ -209,7 +212,7 @@ export default function SearchPage({ navigation }) {
   const RemoteImage2 = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 
@@ -325,8 +328,8 @@ export default function SearchPage({ navigation }) {
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
-    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
-    itemsRef3.on("value", (snapshot) => {
+    const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/");
+    get(itemsRef3).then((snapshot) => {
       if (snapshot.exists()) {
         setFav(true);
       } else {
@@ -474,9 +477,9 @@ export default function SearchPage({ navigation }) {
 
   function AddToCart() {
     let isValid = true;
-    const itemsRef2 = db.ref("Cart/" + user.uid + "/");
+    const itemsRef2 = ref(db, "Cart/" + user.uid + "/");
 
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (snapshot.exists()) {
         snapshot.forEach((child) => {
           let dataVal = child.val();
@@ -493,16 +496,15 @@ export default function SearchPage({ navigation }) {
     });
 
     if (isValid) {
-      const itemsRef = db.ref("Cart/" + user.uid).push();
-      itemsRef
-        .set({
-          id: dataId,
-          Name: data.Name,
-          Image: data.Image,
-          Category: data.Category,
-          Price: getFinal(),
-          Quantity: numberValue,
-        })
+      const itemsRef = push(ref(db, "Cart/" + user.uid));
+      set(itemsRef, {
+        id: dataId,
+        Name: data.Name,
+        Image: data.Image,
+        Category: data.Category,
+        Price: getFinal(),
+        Quantity: numberValue,
+      })
         .then(() => {
           showToast("Item Added Succesfully");
           setNumber(1);

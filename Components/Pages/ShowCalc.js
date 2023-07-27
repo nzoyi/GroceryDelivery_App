@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Alert, Text } from "react-native";
 import Constants from "expo-constants";
@@ -18,6 +20,7 @@ import {
   Pressable,
   Modal,
 } from "react-native";
+import { ref, set } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -79,10 +82,11 @@ export default function ShowCalc({ item, itemid }) {
   }, [numberValue]);
 
   function changeData() {
-    const itemsRef = db.ref("Cart/" + user.uid + "/" + itemid);
-    itemsRef.child("Price").set(getFinal());
+    const itemsRef = ref(db, "Cart/" + user.uid + "/" + itemid);
 
-    itemsRef.child("Quantity").set(numberValue);
+    set(itemsRef, { Price: getFinal() });
+
+    set(itemsRef, { Quantity: numberValue });
   }
 
   return (

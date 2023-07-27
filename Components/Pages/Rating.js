@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Alert, Text } from "react-native";
 import Constants from "expo-constants";
@@ -20,6 +22,7 @@ import {
 } from "react-native";
 
 import StarRating from "react-native-star-rating-widget";
+import { get, ref } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -40,11 +43,11 @@ export default function Rating({ id }) {
   const [total1, setTotal1] = useState();
   const [stars, setStars] = useState(0);
 
-  const itemsRef4 = db.ref("ItemsList/" + id + "/Rating/");
+  const itemsRef4 = ref(db, "ItemsList/" + id + "/Rating/");
 
   function GetRating() {
     let isMounted = true;
-    itemsRef4.on("value", (snapshot) => {
+    get(itemsRef4).then((snapshot) => {
       if (isMounted) {
         let maxRates = [];
         let total1 = 0;

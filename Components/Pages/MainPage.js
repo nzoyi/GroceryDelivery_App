@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -32,6 +34,7 @@ import moment from "moment";
 
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating";
+import { get, push, ref, set } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -78,10 +81,10 @@ export default function MainPage({ navigation }) {
   const [playStore, setPlayStore] = useState("");
   const [appleStore, setAppleStore] = useState("");
 
-  const itemData5 = db.ref("Links");
+  const itemData5 = ref(db, "Links");
   function linkData() {
     let isMounted = true;
-    itemData5.on("value", (snapshot) => {
+    get("value").then((snapshot) => {
       var links = [];
       if (isMounted) {
         let dataSet = snapshot.val();
@@ -95,10 +98,10 @@ export default function MainPage({ navigation }) {
     };
   }
 
-  const userRef = db.ref("UserAccounts/" + user.uid);
+  const userRef = ref(db, "UserAccounts/" + user.uid);
   function getUserData() {
     let isMounted = true;
-    userRef.on("value", (snapshot) => {
+    get(userRef).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
 
@@ -114,11 +117,11 @@ export default function MainPage({ navigation }) {
   const [itemArray2, setItemArray2] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const itemsRef2 = db.ref("ItemsList/");
+  const itemsRef2 = ref(db, "ItemsList/");
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {
@@ -136,11 +139,11 @@ export default function MainPage({ navigation }) {
     };
   }
 
-  const itemsRef = db.ref("ItemsList/");
+  const itemsRef = ref(db, "ItemsList/");
 
   function ItemImages2() {
     let isMounted = true;
-    itemsRef.on("value", (snapshot) => {
+    get(itemsRef).then((snapshot) => {
       if (isMounted) {
         var itemArray2 = [];
         snapshot.forEach((child) => {
@@ -165,11 +168,11 @@ export default function MainPage({ navigation }) {
 
   const [numProducts, setNumProducts] = useState("");
 
-  const itemsRef3 = db.ref("Cart/" + user.uid);
+  const itemsRef3 = ref(db, "Cart/" + user.uid);
 
   function itemCart() {
     let isMounted = true;
-    itemsRef3.on("value", (snapshot) => {
+    get(itemsRef3).then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
         total1 += snapshot.numChildren();
@@ -183,11 +186,11 @@ export default function MainPage({ navigation }) {
   }
 
   const [isAvailable, setIsAvailable] = useState(false);
-  const itemsRef11 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+  const itemsRef11 = ref(db, "UserAccounts/" + user.uid + "/Coupons/");
 
   function userInfo2() {
     let isMounted = true;
-    itemsRef11.on("value", (snapshot) => {
+    get(itemsRef11).then((snapshot) => {
       if (isMounted) {
         if (snapshot.exists()) {
           snapshot.forEach((child) => {
@@ -1822,9 +1825,9 @@ export default function MainPage({ navigation }) {
 
   function AddToCart() {
     let isValid = true;
-    const itemsRef2 = db.ref("Cart/" + user.uid + "/");
+    const itemsRef2 = ref(db, "Cart/" + user.uid + "/");
 
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (snapshot.exists()) {
         snapshot.forEach((child) => {
           let dataVal = child.val();
@@ -1841,16 +1844,16 @@ export default function MainPage({ navigation }) {
     });
 
     if (isValid) {
-      const itemsRef = db.ref("Cart/" + user.uid).push();
-      itemsRef
-        .set({
-          id: dataId,
-          Name: data.Name,
-          Image: data.Image,
-          Category: data.Category,
-          Price: getFinal(),
-          Quantity: numberValue,
-        })
+      const itemsRef = push(ref(db, "Cart/" + user.uid));
+
+      set(itemsRef, {
+        id: dataId,
+        Name: data.Name,
+        Image: data.Image,
+        Category: data.Category,
+        Price: getFinal(),
+        Quantity: numberValue,
+      })
         .then(() => {
           showToast("Item Added Succesfully");
           setNumber(1);
@@ -1891,8 +1894,8 @@ export default function MainPage({ navigation }) {
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
-    const itemsRef3 = db.ref("UserAccounts/" + user.uid + "/Favorite/");
-    itemsRef3.on("value", (snapshot) => {
+    const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/");
+    get(itemsRef3).then((snapshot) => {
       if (snapshot.exists()) {
         setFav(true);
       } else {

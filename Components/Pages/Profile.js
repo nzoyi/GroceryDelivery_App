@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -27,6 +29,7 @@ import { SafeAreaView } from "react-native";
 
 import { Snackbar } from "react-native-paper";
 import moment from "moment";
+import { get, ref } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -57,10 +60,10 @@ export default function Profile({ navigation, route }) {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const userRef = db.ref("UserAccounts/" + user.uid);
+  const userRef = ref(db, "UserAccounts/" + user.uid);
   function getUserData() {
     let isMounted = true;
-    userRef.on("value", (snapshot) => {
+    get(userRef).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
 
@@ -73,11 +76,11 @@ export default function Profile({ navigation, route }) {
     };
   }
 
-  const itemsRef = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+  const itemsRef = ref(db, "UserAccounts/" + user.uid + "/Coupons/");
 
   function userInfo2() {
     let isMounted = true;
-    itemsRef.on("value", (snapshot) => {
+    get(itemsRef).then((snapshot) => {
       if (isMounted) {
         if (snapshot.exists()) {
           snapshot.forEach((child) => {
@@ -111,10 +114,10 @@ export default function Profile({ navigation, route }) {
   const [tc, setTC] = useState("");
   const [instagram, setInstagram] = useState("");
 
-  const itemData5 = db.ref("Links");
+  const itemData5 = ref(db, "Links");
   function linkData() {
     let isMounted = true;
-    itemData5.on("value", (snapshot) => {
+    get(itemData5).then((snapshot) => {
       var links = [];
       if (isMounted) {
         let dataSet = snapshot.val();

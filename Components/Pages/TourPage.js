@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -41,6 +43,7 @@ import { LogBox } from "react-native";
 import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating";
+import { get, ref } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -81,10 +84,10 @@ export default function TourPage({ navigation }) {
   const [playStore, setPlayStore] = useState("");
   const [appleStore, setAppleStore] = useState("");
 
-  const itemData5 = db.ref("Links");
+  const itemData5 = ref(db, "Links");
   function linkData() {
     let isMounted = true;
-    itemData5.on("value", (snapshot) => {
+    get(itemData5).then((snapshot) => {
       var links = [];
       if (isMounted) {
         let dataSet = snapshot.val();
@@ -102,11 +105,11 @@ export default function TourPage({ navigation }) {
   const [itemArray2, setItemArray2] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const itemsRef2 = db.ref("ItemsList/");
+  const itemsRef2 = ref(db, "ItemsList/");
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {
@@ -124,11 +127,11 @@ export default function TourPage({ navigation }) {
     };
   }
 
-  const itemsRef = db.ref("ItemsList/");
+  const itemsRef = ref(db, "ItemsList/");
 
   function ItemImages2() {
     let isMounted = true;
-    itemsRef.on("value", (snapshot) => {
+    get(itemsRef).then((snapshot) => {
       if (isMounted) {
         var itemArray2 = [];
         snapshot.forEach((child) => {
@@ -189,7 +192,7 @@ export default function TourPage({ navigation }) {
   const RemoteImage = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 
@@ -211,7 +214,7 @@ export default function TourPage({ navigation }) {
   const RemoteImage2 = ({ uri, desiredWidth }) => {
     const [desiredHeight, setDesiredHeight] = React.useState(0);
 
-    Image.getSize(uri, (width, height) => {
+    Image.getSize(uri).then((width, height) => {
       setDesiredHeight((desiredWidth / width) * height);
     });
 

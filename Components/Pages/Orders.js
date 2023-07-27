@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -31,6 +33,7 @@ import GetItems from "./GetItems";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { TextInput } from "react-native";
+import { get, ref, set } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -76,11 +79,11 @@ export default function Orders({ navigation, route }) {
 
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Orders/");
+  const itemsRef2 = ref(db, "UserAccounts/" + user.uid + "/Orders/");
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {
@@ -99,10 +102,10 @@ export default function Orders({ navigation, route }) {
   }
 
   const [phoneLink, setPhone] = useState("");
-  const itemData5 = db.ref("Links");
+  const itemData5 = ref("Links");
   function linkData() {
     let isMounted = true;
-    itemData5.on("value", (snapshot) => {
+    get(itemData5).then((snapshot) => {
       var links = [];
       if (isMounted) {
         let dataSet = snapshot.val();
@@ -280,10 +283,9 @@ export default function Orders({ navigation, route }) {
   }
 
   function deleteItem2(id) {
-    const itemsRef2 = db.ref("UserAccounts/" + user.uid + "/Orders/" + id);
-    itemsRef2
-      .child("Status")
-      .set("Cancelled")
+    const itemsRef2 = ref(db, "UserAccounts/" + user.uid + "/Orders/" + id);
+
+    set(itemsRef2, { Status: "Cancelled" })
       .then(showToast("Cancelled Successfully"))
       .catch((error) => showToast("Error" + error));
   }

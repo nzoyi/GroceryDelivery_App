@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
@@ -42,6 +44,12 @@ import PhoneInput from "react-native-phone-number-input";
 import * as WebBrowser from "expo-web-browser";
 import { LinearGradient } from "expo-linear-gradient";
 import moment from "moment";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth/react-native";
+import { get, push, ref, set } from "firebase/database";
 WebBrowser.maybeCompleteAuthSession();
 
 function showToast(msg) {
@@ -97,11 +105,11 @@ export default function Login({ navigation }) {
     }
   };
 
-  const itemData5 = db.ref("Links");
+  const itemData5 = ref(db, "Links");
 
   useEffect(() => {
     let isMounted = true;
-    itemData5.on("value", (snapshot) => {
+    get(itemData5).then((snapshot) => {
       var links = [];
       if (isMounted) {
         let dataSet = snapshot.val();
@@ -125,13 +133,12 @@ export default function Login({ navigation }) {
 
   const handleLogin = () => {
     setLoading(true);
-    auth
-      .signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
-        const itemsRef1 = db.ref("/UserAccounts/" + user.uid);
+        const itemsRef1 = ref(db, "/UserAccounts/" + user.uid);
 
-        itemsRef1.on("value", (snapshot) => {
+        get(itemsRef1).then((snapshot) => {
           if (snapshot.exists()) {
             navigation.replace("MainPage");
             setLoading(false);
@@ -291,47 +298,44 @@ export default function Login({ navigation }) {
 
     if (isValid) {
       setLoading(true);
-      auth
-        .createUserWithEmailAndPassword(email, password2)
+      createUserWithEmailAndPassword(auth, email, password2)
         .then((userCredentials) => {
           const user = userCredentials.user;
-          const itemUpload = db.ref("/UserAccounts/" + user.uid);
-          itemUpload
-            .set({
-              Name: username,
-              Email: email,
-              Contact: formattedValue,
-              TermsConditions: "" + terms,
-              Country: country,
-              City: city,
-              Locale: city,
-              iso: iso.toLowerCase(),
-            })
-            .then(() => {
-              const recKey = db
-                .ref("UserAccounts/" + user.uid + "/Coupons")
-                .push().key;
-              const itemData = db.ref(
-                "UserAccounts/" + user.uid + "/Coupons/" + recKey
-              );
-              itemData
-                .set({
-                  Coupon: "Welcome Bonus",
-                  ExpiryDate: finalDate,
-                  Image:
-                    "https://firebasestorage.googleapis.com/v0/b/cityfoods-70f48.appspot.com/o/Coupons%2FWelcome%20Bonux.png?alt=media&token=4cef03ea-ae28-4a19-be6c-eef67a3eafc0",
-                  Offer: 5,
-                  PromoCode: "WELCOME",
-                  Used: "No",
-                  id: recKey,
-                })
-                .then(() => {
-                  setLoading(false);
-                  navigation.replace("MainPage");
-                  user.sendEmailVerification();
-                  showToast("Email Verification sent");
-                });
+          const itemUpload = ref(db, "/UserAccounts/" + user.uid);
+          set(itemUpload, {
+            Name: username,
+            Email: email,
+            Contact: formattedValue,
+            TermsConditions: "" + terms,
+            Country: country,
+            City: city,
+            Locale: city,
+            iso: iso.toLowerCase(),
+          }).then(() => {
+            const recKey = push(
+              ref(db, "UserAccounts/" + user.uid + "/Coupons")
+            ).key;
+
+            const itemData = ref(
+              db,
+              "UserAccounts/" + user.uid + "/Coupons/" + recKey
+            );
+            set(itemData, {
+              Coupon: "Welcome Bonus",
+              ExpiryDate: finalDate,
+              Image:
+                "https://firebasestorage.googleapis.com/v0/b/cityfoods-70f48.appspot.com/o/Coupons%2FWelcome%20Bonux.png?alt=media&token=4cef03ea-ae28-4a19-be6c-eef67a3eafc0",
+              Offer: 5,
+              PromoCode: "WELCOME",
+              Used: "No",
+              id: recKey,
+            }).then(() => {
+              setLoading(false);
+              navigation.replace("MainPage");
+              sendEmailVerification(user);
+              showToast("Email Verification sent");
             });
+          });
         })
         .catch((error) => {
           setLoading(false);

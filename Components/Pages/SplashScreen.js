@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -16,6 +18,7 @@ import { db } from "../Connection/firebaseDB";
 import NetInfo from "@react-native-community/netinfo";
 import { Dimensions } from "react-native";
 import COLORS from "../../Colors/Colors";
+import { onAuthStateChanged } from "firebase/auth/react-native";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -38,18 +41,28 @@ const SplashScreen = ({ navigation, route }) => {
   NetInfo.fetch().then((state) => {
     if (state.isConnected) {
       setTimeout(() => {
-        let user = firebase.auth().currentUser;
+        retrieveData();
+      }, 5000);
+    } else {
+      showToast("Error No Internet Connection");
+    }
+  });
+
+  const retrieveData = async () => {
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
           navigation.replace("MainPage");
         } else {
           //navigation.replace("Login");
           navigation.replace("HomePage");
         }
-      }, 5000);
-    } else {
-      showToast("Error No Internet Connection");
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      // Error retrieving data
     }
-  });
+  };
 
   return (
     <View

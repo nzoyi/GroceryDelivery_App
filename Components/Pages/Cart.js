@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -35,6 +37,15 @@ import { SafeAreaView } from "react-native";
 import { BottomSheet } from "react-native-btr";
 import { PayWithFlutterwave } from "flutterwave-react-native";
 import ShowCalc from "./ShowCalc";
+import {
+  equalTo,
+  get,
+  orderByChild,
+  push,
+  query,
+  ref,
+  set,
+} from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -78,11 +89,11 @@ export default function Cart({ navigation, route }) {
 
   const [itemArray, setItemArray] = useState([]);
 
-  const itemsRef2 = db.ref("Cart/" + user.uid);
+  const itemsRef2 = ref(db, "Cart/" + user.uid);
 
   function ItemImages() {
     let isMounted = true;
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         var itemArray = [];
         snapshot.forEach((child) => {
@@ -105,11 +116,11 @@ export default function Cart({ navigation, route }) {
   const [address2, setAddress2] = useState("");
   const [address3, setAddress3] = useState("");
 
-  const itemsRef4 = db.ref("UserAccounts/" + user.uid);
+  const itemsRef4 = ref(db, "UserAccounts/" + user.uid);
 
   function userInfo() {
     let isMounted = true;
-    itemsRef4.on("value", (snapshot) => {
+    get(itemsRef4).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
         setUsername(dataVal.Name);
@@ -126,10 +137,10 @@ export default function Cart({ navigation, route }) {
 
   const [balance, setBalance] = useState("");
 
-  const itemsRef6 = db.ref("Admin/Account/");
+  const itemsRef6 = ref(db, "Admin/Account/");
   function adminAcc() {
     let isMounted = true;
-    itemsRef6.on("value", (snapshot) => {
+    get(itemsRef6).then((snapshot) => {
       if (isMounted) {
         let dataVal = snapshot.val();
         setBalance(dataVal.Balance);
@@ -156,24 +167,25 @@ export default function Cart({ navigation, route }) {
   const [aboutVisible, setAboutVisible] = useState(false);
 
   if (couponCode) {
-    const itemsRef4 = db.ref("UserAccounts/" + user.uid + "/Coupons/");
+    const itemsRef4 = query(
+      ref(db, "UserAccounts/" + user.uid + "/Coupons/"),
+      orderByChild("PromoCode"),
+      equalTo(couponCode)
+    );
 
     useEffect(() => {
       let isMounted = true;
-      itemsRef4
-        .orderByChild("PromoCode")
-        .equalTo(couponCode)
-        .on("value", (snapshot) => {
-          if (isMounted) {
-            snapshot.forEach((child) => {
-              let dataVal = child.val();
-              setPromoPerc(dataVal.Offer);
-              setValidPromo(true);
-              setPromoId(dataVal.id);
-              //console.log(dataVal.Coupon);
-            });
-          }
-        });
+      get(itemsRef4).then((snapshot) => {
+        if (isMounted) {
+          snapshot.forEach((child) => {
+            let dataVal = child.val();
+            setPromoPerc(dataVal.Offer);
+            setValidPromo(true);
+            setPromoId(dataVal.id);
+            //console.log(dataVal.Coupon);
+          });
+        }
+      });
       return () => {
         isMounted = false;
       };
@@ -228,7 +240,7 @@ export default function Cart({ navigation, route }) {
   };
 
   function deleteItem(id) {
-    const itemsRef2 = db.ref("Cart/" + user.uid);
+    const itemsRef2 = ref(db, "Cart/" + user.uid);
     itemsRef2
       .child(id)
       .remove()
@@ -484,7 +496,7 @@ export default function Cart({ navigation, route }) {
     }
   };
 
-  const recKey = db.ref("UserAccounts/" + user.uid + "/Orders/").push().key;
+  const recKey = push(ref(db, "UserAccounts/" + user.uid + "/Orders/")).key;
 
   const date = new Date().toLocaleString();
 
@@ -493,76 +505,85 @@ export default function Cart({ navigation, route }) {
 
   function OrderNow() {
     setPressed(true);
-    const itemsRef6 = db.ref("Cart/" + user.uid);
+    const itemsRef6 = ref(db, "Cart/" + user.uid);
     itemArray.map((items) => {
-      const itemsRef = db
-        .ref("UserAccounts/" + user.uid + "/Orders/" + recKey + "/Items")
-        .push();
+      const itemsRef = push(
+        ref(db, "UserAccounts/" + user.uid + "/Orders/" + recKey)
+      );
 
-      itemsRef
-        .set(items.key)
+      set(itemsRef, { Items: items.key })
         .then(() => {
           if (promoPerc > 0) {
             if (couponCode) {
-              const itemsRef3 = db.ref(
+              const itemsRef3 = ref(
+                db,
                 "UserAccounts/" + user.uid + "/Coupons/" + promoId + "/"
               );
-              itemsRef3.child("Used").set("Yes");
+              set(itemsRef3, { Used: "Yes" });
             } else {
-              const itemsRef3 = db.ref(
-                "PromoCodes/" + promoId + "/" + user.uid
+              const itemsRef3 = ref(
+                db,
+                "PromoCodes/" + promoId + "/" + user.uid + "/" + user.uid
               );
-              itemsRef3.child(user.uid).set(true);
+
+              set(itemsRef3, true);
 
               let users = promoUsers - 1;
 
-              const itemsRef = db.ref("PromoCodes/" + promoId);
-              itemsRef.child("NumberOfUsers").set(users);
+              const itemsRef = ref(db, "PromoCodes/" + promoId);
+
+              set(itemsRef, { NumberOfUsers: users });
             }
           }
 
-          const itemsRef3 = db.ref(
+          const itemsRef3 = ref(
+            db,
             "UserAccounts/" + user.uid + "/Orders/" + recKey
           );
-          itemsRef3.child("Date").set("" + date);
-          itemsRef3.child("Amount").set(getTotal());
-          itemsRef3.child("PaymentMethod").set("Cash On Delivery");
-          itemsRef3.child("Status").set("Pending");
+          set(itemsRef3, { Date: "" + date });
+          set(itemsRef3, { Amount: getTotal() });
+          set(itemsRef3, { PaymentMethod: "Cash On Delivery" });
+          set(itemsRef3, { Status: "Pending" });
           if (promoPerc > 0) {
-            itemsRef3.child("Offer").set(promoPerc);
+            set(itemsRef3, { Offer: promoPerc });
           }
-          itemsRef3
-            .child("TransportFee")
-            .set(5000)
+
+          set(itemsRef3, { TransportFee: 5000 })
             .then(console.log("firstUpload"))
             .catch((error) => showToast("error" + error));
         })
         .catch((error) => showToast("Error" + error));
 
-      const adminRef = db.ref("Admin/Orders/" + recKey + "/Items").push();
+      const adminRef = push(ref(db, "Admin/Orders/" + recKey + "/Items"));
 
-      adminRef
-        .set(items.key)
+      adminRef;
+      set(items.key)
         .then(() => {
-          const itemsRef3 = db.ref("Admin/Orders/" + recKey);
-          itemsRef3.child("Date").set("" + date);
-          itemsRef3.child("UserId").set(user.uid);
-          itemsRef3.child("Amount").set(getTotal());
-          itemsRef3.child("PaymentMethod").set("Cash On Delivery");
-          itemsRef3.child("Status").set("Pending");
+          const itemsRef3 = ref(db, "Admin/Orders/" + recKey);
+
+          set(itemsRef3, { Date: "" + date });
+          set(itemsRef3, { UserId: user.uid });
+
+          set(itemsRef3, { Amount: getTotal() });
+
+          set(itemsRef3, { PaymentMethod: "Cash On Delivery" });
+
+          set(itemsRef3, { Status: "Pending" });
+
           if (promoPerc > 0) {
-            itemsRef3.child("Offer").set(promoPerc);
+            set(itemsRef3, { Offer: promoPerc });
           }
-          itemsRef3.child("Name").set(username);
-          itemsRef3.child("Phone").set(phone);
-          itemsRef3.child("Location").set(address2 + " - " + address3);
-          itemsRef3
-            .child("TransportFee")
-            .set(5000)
+
+          set(itemsRef3, { Name: username });
+
+          set(itemsRef3, { Phone: phone });
+
+          set(itemsRef3, { Location: address2 + " - " + address3 });
+
+          set(itemsRef3, { TransportFee: 5000 })
             .then(() => {
               setPressed(false);
-              itemsRef6
-                .remove()
+              remove(itemsRef6)
                 .then(() => {
                   setPressed(false);
                   navigation.navigate("Orders");
@@ -578,84 +599,95 @@ export default function Cart({ navigation, route }) {
   function OrderNow2() {
     setPressed2(true);
 
-    const itemsRef6 = db.ref("Cart/" + user.uid);
+    const itemsRef6 = ref(db, "Cart/" + user.uid);
     itemArray.map((items) => {
-      const itemsRef = db
-        .ref("UserAccounts/" + user.uid + "/Orders/" + recKey + "/Items")
-        .push();
+      const itemsRef = push(
+        ref(db, "UserAccounts/" + user.uid + "/Orders/" + recKey)
+      );
 
-      itemsRef
-        .set(items.key)
+      set(itemsRef, { Items: items.key })
         .then(() => {
           if (promoPerc > 0) {
             if (couponCode) {
-              const itemsRef3 = db.ref(
+              const itemsRef3 = ref(
+                db,
                 "UserAccounts/" + user.uid + "/Coupons/" + promoId + "/"
               );
-              itemsRef3.child("Used").set("Yes");
+
+              set(itemsRef3, { Used: "Yes" });
             } else {
-              const itemsRef3 = db.ref(
-                "PromoCodes/" + promoId + "/" + user.uid
+              const itemsRef3 = ref(
+                db,
+                "PromoCodes/" + promoId + "/" + user.uid + "/" + user.uid
               );
-              itemsRef3.child(user.uid).set(true);
+
+              set(itemsRef3, true);
 
               let users = promoUsers - 1;
 
-              const itemsRef = db.ref("PromoCodes/" + promoId);
-              itemsRef.child("NumberOfUsers").set(users);
+              const itemsRef = ref(db, "PromoCodes/" + promoId);
+
+              set(itemsRef, { NumberOfUsers: users });
             }
           }
 
           let orig = getTotal();
           let final = orig + balance;
 
-          const itemsRef = db.ref("Admin/Account/");
-          itemsRef.child("Balance").set(final);
+          const itemsRef = ref(db, "Admin/Account/");
 
-          const itemsRef3 = db.ref(
+          set(itemsRef, { Balance: final });
+
+          const itemsRef3 = ref(
+            db,
             "UserAccounts/" + user.uid + "/Orders/" + recKey
           );
-          itemsRef3.child("Date").set("" + date);
-          itemsRef3.child("Amount").set(getTotal());
-          itemsRef3.child("PaymentMethod").set("MobileMoney");
+
+          set(itemsRef3, { Date: "" + date });
+          set(itemsRef3, { Amount: getTotal() });
+          set(itemsRef3, { PaymentMethod: "MobileMoney" });
+          set(itemsRef3, { Status: "Pending" });
           if (promoPerc > 0) {
-            itemsRef3.child("Offer").set(promoPerc);
+            set(itemsRef3, { Offer: promoPerc });
           }
-          itemsRef3.child("Status").set("Pending");
-          itemsRef3
-            .child("TransportFee")
-            .set(5000)
+
+          set(itemsRef3, { TransportFee: 5000 })
             .then(console.log("FirstUpload"))
             .catch((error) => showToast("error" + error));
         })
         .catch((error) => showToast("Error" + error));
 
-      const adminRef = db.ref("Admin/Orders/" + recKey + "/Items").push();
+      const adminRef = push(ref(db, "Admin/Orders/" + recKey));
 
-      adminRef
-        .set(items.key)
+      set(adminRef, { Items: items.key })
         .then(() => {
-          const itemsRef3 = db.ref("Admin/Orders/" + recKey);
-          itemsRef3.child("Date").set("" + date);
-          itemsRef3.child("UserId").set(user.uid);
-          itemsRef3.child("Amount").set(getTotal());
-          itemsRef3.child("PaymentMethod").set("MobileMoney");
-          itemsRef3.child("Status").set("Pending");
+          const itemsRef3 = ref(db, "Admin/Orders/" + recKey);
+          set(itemsRef3, { Date: "" + date });
+          set(itemsRef3, { UserId: user.uid });
+
+          set(itemsRef3, { Amount: getTotal() });
+
+          set(itemsRef3, { PaymentMethod: "MobileMoney" });
+
+          set(itemsRef3, { Status: "Pending" });
+
           if (promoPerc > 0) {
-            itemsRef3.child("Offer").set(promoPerc);
+            set(itemsRef3, { Offer: promoPerc });
           }
-          itemsRef3.child("Name").set(username);
-          itemsRef3.child("Phone").set(phone);
-          itemsRef3.child("Location").set(address2 + " - " + address3);
-          itemsRef3
-            .child("TransportFee")
-            .set(5000)
+
+          set(itemsRef3, { Name: username });
+
+          set(itemsRef3, { Phone: phone });
+
+          set(itemsRef3, { Location: address2 + " - " + address3 });
+
+          set(itemsRef3, { TransportFee: 5000 })
             .then(() => {
-              itemsRef6
-                .remove()
+              setPressed(false);
+              remove(itemsRef6)
                 .then(() => {
+                  setPressed2(false);
                   navigation.navigate("Orders");
-                  setPressed2(true);
                 })
                 .catch((error) => showToast("Error" + error));
             })
@@ -682,7 +714,7 @@ export default function Cart({ navigation, route }) {
   }
 
   function deleteItem2() {
-    const itemsRef2 = db.ref("Cart/" + user.uid);
+    const itemsRef2 = ref(db, "Cart/" + user.uid);
     itemsRef2
       .remove()
       .then(showToast("Deleted Successfully"))
@@ -693,30 +725,32 @@ export default function Cart({ navigation, route }) {
 
   function ValidateCode() {
     let valid = true;
-    const codeList = db.ref("PromoCodes/");
-    codeList
-      .orderByChild("Code")
-      .equalTo(promoCode)
-      .on("value", (snapshot) => {
-        if (snapshot.exists()) {
-          snapshot.forEach((child) => {
-            let dataVal1 = child.key;
-            let dataVal = child.val();
-            if (child.child(user.uid).exists()) {
-              valid = false;
-            } else {
-              valid = true;
-              setValidPromo(true);
-              setPromoUsers(dataVal.NumberOfUsers);
-              setPromoPerc(dataVal.Percentage);
+    const codeList = query(
+      ref(db, "PromoCodes/"),
+      orderByChild("Code"),
+      equalTo(promoCode)
+    );
 
-              setPromoId(dataVal1);
-            }
-          });
-        } else {
-          showToast("Invalid Promo Code");
-        }
-      });
+    get(codeList).then((snapshot) => {
+      if (snapshot.exists()) {
+        snapshot.forEach((child) => {
+          let dataVal1 = child.key;
+          let dataVal = child.val();
+          if (child.child(user.uid).exists()) {
+            valid = false;
+          } else {
+            valid = true;
+            setValidPromo(true);
+            setPromoUsers(dataVal.NumberOfUsers);
+            setPromoPerc(dataVal.Percentage);
+
+            setPromoId(dataVal1);
+          }
+        });
+      } else {
+        showToast("Invalid Promo Code");
+      }
+    });
 
     if (valid) {
     } else {
