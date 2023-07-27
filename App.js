@@ -1,3 +1,5 @@
+/** @format */
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
@@ -27,11 +29,10 @@ import * as Updates from "expo-updates";
 const { Navigator, Screen } = createNativeStackNavigator();
 
 export default function App() {
-  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [initialRoute, setInitialRoute] = useState("Home");
 
-  const requestUserPermission = async () => {
+  /* const requestUserPermission = async () => {
     const authStatus = await messaging().requestUserPermission();
     const enabled =
       authStatus == messaging.AuthorizationStatus.AUTHORIZED ||
@@ -40,7 +41,7 @@ export default function App() {
     if (enabled) {
       console.log("Authorization status", authStatus);
     }
-  };
+  };*/
 
   useEffect(() => {
     reactToUpdates();
@@ -54,6 +55,7 @@ export default function App() {
     });
   };
 
+  /*
   useEffect(() => {
     if (requestUserPermission()) {
       messaging()
@@ -96,7 +98,7 @@ export default function App() {
     });
 
     return unsubscribe;
-  }, []);
+  }, []);*/
 
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
   useEffect(() => {

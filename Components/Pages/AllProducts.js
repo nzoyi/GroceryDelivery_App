@@ -74,7 +74,7 @@ export default function AllProducts({ navigation, route }) {
 
   const [filteredDataSource, setFilteredDataSource] = useState([]);
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");

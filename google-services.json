@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "1025016915176",
+    "firebase_url": "https://cityfoods-70f48-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "cityfoods-70f48",
+    "storage_bucket": "cityfoods-70f48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025016915176:android:929877037c9a37849ad55d",
+        "android_client_info": {
+          "package_name": "com.futuredesigns.cityfoods"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1025016915176-02i3ldf7ortkdjveq56td29vo0orujj9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.futuredesigns.cityfoods",
+            "certificate_hash": "cbd7f179d36646df4bc542960300c155f61d25e5"
+          }
+        },
+        {
+          "client_id": "1025016915176-vl3ic22dge6bn5bl2h02s7sa1a0knejt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.futuredesigns.cityfoods",
+            "certificate_hash": "a638dfdcbf664522c4a9e573932215d17cff43d4"
+          }
+        },
+        {
+          "client_id": "1025016915176-5s0bbab2gira435j04khh7bqdauafahq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHftDQmbonkuwZTzSPFAKiNl-g9lmvccM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1025016915176-5s0bbab2gira435j04khh7bqdauafahq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1025016915176-64c3ave50dosmc9ig8963f0jubtgi6r2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.futuredesigns.cityfoods"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

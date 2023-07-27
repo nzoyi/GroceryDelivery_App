@@ -75,7 +75,7 @@ export default function Coupons({ navigation, route }) {
     };
   }, []);
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");

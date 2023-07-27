@@ -58,7 +58,7 @@ export default function Favorite({ navigation }) {
     };
   }, []);
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");
@@ -114,7 +114,7 @@ export default function Favorite({ navigation }) {
     get(itemsRef2).then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
-        total1 += snapshot.numChildren();
+        total1 += snapshot.size;
 
         setNumProducts(total1);
       }

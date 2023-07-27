@@ -39,7 +39,7 @@ function showToast(msg) {
 }
 
 export default function GetItems({ id }) {
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
   const [itemArray, setItemArray] = useState([]);
 
   const itemsRef2 = ref(

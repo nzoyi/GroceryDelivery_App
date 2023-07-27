@@ -45,6 +45,7 @@ import StarRating from "react-native-star-rating-widget";
 import {
   equalTo,
   get,
+  onValue,
   orderByChild,
   query,
   ref,
@@ -67,7 +68,7 @@ function showToast(msg) {
 }
 
 export default function ProductDetails({ navigation, route }) {
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");
@@ -337,7 +338,7 @@ export default function ProductDetails({ navigation, route }) {
             rating: dataVal.rating,
           });
         });
-        total1 += snapshot.numChildren();
+        total1 += snapshot.size;
         setTotal1(total1);
         setMaxRates(maxRates);
         //console.log(maxRates);
@@ -410,7 +411,7 @@ export default function ProductDetails({ navigation, route }) {
     let isValid = true;
 
     const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/" + pId);
-    get(itemsRef3).then((snapshot) => {
+    onValue(itemsRef3, (snapshot) => {
       if (snapshot.exists()) {
         isValid = false;
       } else {

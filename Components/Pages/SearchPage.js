@@ -71,7 +71,7 @@ export default function SearchPage({ navigation }) {
     };
   }, []);
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");
@@ -86,7 +86,7 @@ export default function SearchPage({ navigation }) {
     get(itemsRef3).then((snapshot) => {
       if (isMounted) {
         let total1 = 0;
-        total1 += snapshot.numChildren();
+        total1 += snapshot.size;
 
         setNumProducts(total1);
       }

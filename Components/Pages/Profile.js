@@ -46,7 +46,7 @@ function showToast(msg) {
 }
 
 export default function Profile({ navigation, route }) {
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");

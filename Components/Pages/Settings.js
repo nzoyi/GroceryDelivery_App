@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -71,7 +73,7 @@ export default function Settings({ navigation, route }) {
     };
   }, []);
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");

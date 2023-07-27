@@ -34,7 +34,7 @@ import moment from "moment";
 
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating";
-import { get, push, ref, set } from "firebase/database";
+import { get, onValue, push, ref, set } from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -66,7 +66,7 @@ export default function MainPage({ navigation }) {
     };
   }, []);
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   if (!user) {
     navigation.replace("Login");
@@ -84,7 +84,7 @@ export default function MainPage({ navigation }) {
   const itemData5 = ref(db, "Links");
   function linkData() {
     let isMounted = true;
-    get("value").then((snapshot) => {
+    get(itemData5).then((snapshot) => {
       var links = [];
       if (isMounted) {
         let dataSet = snapshot.val();
@@ -172,10 +172,10 @@ export default function MainPage({ navigation }) {
 
   function itemCart() {
     let isMounted = true;
-    get(itemsRef3).then((snapshot) => {
+    onValue(itemsRef3, (snapshot) => {
       if (isMounted) {
         let total1 = 0;
-        total1 += snapshot.numChildren();
+        total1 += snapshot.size;
 
         setNumProducts(total1);
       }
@@ -1895,7 +1895,7 @@ export default function MainPage({ navigation }) {
 
   useEffect(() => {
     const itemsRef3 = ref(db, "UserAccounts/" + user.uid + "/Favorite/");
-    get(itemsRef3).then((snapshot) => {
+    onValue(itemsRef3, (snapshot) => {
       if (snapshot.exists()) {
         setFav(true);
       } else {

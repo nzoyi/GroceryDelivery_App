@@ -7,7 +7,7 @@ import COLORS from "../../Colors/Colors";
 import { Image } from "react-native";
 import { firebase } from "../Connection/firebaseDB";
 // Using DB Reference
-import { db } from "../Connection/firebaseDB";
+import { db, auth } from "../Connection/firebaseDB";
 
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -40,7 +40,7 @@ export default function ShowCalc({ item, itemid }) {
   const [numberValue, setNumber] = useState(item.Quantity);
   const [finalPrice, setFinalPrice] = useState("");
 
-  let user = firebase.auth().currentUser;
+  let user = auth.currentUser;
 
   function getNumber() {
     //console.log(Quantity);

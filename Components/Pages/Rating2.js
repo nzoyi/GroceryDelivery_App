@@ -57,7 +57,7 @@ export default function Rating2({ id }) {
             rating: dataVal.rating,
           });
         });
-        total1 += snapshot.numChildren();
+        total1 += snapshot.size;
         setTotal1(total1);
         setMaxRates(maxRates);
         //console.log(maxRates);
