@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
@@ -39,6 +41,15 @@ import * as Location from "expo-location";
 import { ActivityIndicator } from "react-native-paper";
 import Rating from "./Rating2";
 import ShowCalc from "./ShowCalc";
+import {
+  equalTo,
+  get,
+  orderByChild,
+  push,
+  query,
+  ref,
+  set,
+} from "firebase/database";
 
 function showToast(msg) {
   if (Platform.OS === "android") {
@@ -69,13 +80,13 @@ export default function AllProducts({ navigation, route }) {
     navigation.replace("Login");
   }
 
-  const itemsRef2 = db.ref("ItemsList/");
+  const itemsRef2 = ref(db, "ItemsList/");
 
   function ItemImages() {
     let isMounted = true;
     if (category == "Recommended") {
       let isMounted = true;
-      itemsRef2.on("value", (snapshot) => {
+      get(itemsRef2).then((snapshot) => {
         if (isMounted) {
           var itemArray2 = [];
           snapshot.forEach((child) => {
@@ -97,22 +108,25 @@ export default function AllProducts({ navigation, route }) {
         isMounted = false;
       };
     } else {
-      itemsRef2
-        .orderByChild("Category")
-        .equalTo(category)
-        .on("value", (snapshot) => {
-          if (isMounted) {
-            var itemArray = [];
-            snapshot.forEach((child) => {
-              itemArray.push({
-                id: child.key,
-                key: child.val(),
-              });
+      const itemsRef2 = query(
+        ref(db, "ItemsList/"),
+        orderByChild("Category"),
+        equalTo(category)
+      );
+
+      get(itemsRef2).then((snapshot) => {
+        if (isMounted) {
+          var itemArray = [];
+          snapshot.forEach((child) => {
+            itemArray.push({
+              id: child.key,
+              key: child.val(),
             });
-            setItemArray(itemArray);
-            setFilteredDataSource(itemArray);
-          }
-        });
+          });
+          setItemArray(itemArray);
+          setFilteredDataSource(itemArray);
+        }
+      });
       return () => {
         isMounted = false;
       };
@@ -451,9 +465,9 @@ export default function AllProducts({ navigation, route }) {
 
   function AddToCart() {
     let isValid = true;
-    const itemsRef2 = db.ref("Cart/" + user.uid + "/");
+    const itemsRef2 = ref(db, "Cart/" + user.uid + "/");
 
-    itemsRef2.on("value", (snapshot) => {
+    get(itemsRef2).then((snapshot) => {
       if (snapshot.exists()) {
         snapshot.forEach((child) => {
           let dataVal = child.val();
@@ -470,16 +484,15 @@ export default function AllProducts({ navigation, route }) {
     });
 
     if (isValid) {
-      const itemsRef = db.ref("Cart/" + user.uid).push();
-      itemsRef
-        .set({
-          id: dataId,
-          Name: data.Name,
-          Image: data.Image,
-          Category: data.Category,
-          Price: getFinal(),
-          Quantity: numberValue,
-        })
+      const itemsRef = push(ref(db, "Cart/" + user.uid));
+      set(itemsRef, {
+        id: dataId,
+        Name: data.Name,
+        Image: data.Image,
+        Category: data.Category,
+        Price: getFinal(),
+        Quantity: numberValue,
+      })
         .then(() => {
           showToast("Item Added Succesfully");
           setNumber(1);
