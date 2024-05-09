@@ -536,7 +536,7 @@ export default function MainPage({ navigation }) {
                           color: "green",
                         }}
                       >
-                        UGX {items.key.Price}
+                        K {items.key.Price}
                       </Text>
                       <Rating id={items.id} />
                       <TouchableOpacity
@@ -671,7 +671,7 @@ export default function MainPage({ navigation }) {
                           color: "green",
                         }}
                       >
-                        UGX {items.key.Price}
+                        K {items.key.Price}
                       </Text>
                     </View>
                   </View>
@@ -747,7 +747,7 @@ export default function MainPage({ navigation }) {
                           color: "green",
                         }}
                       >
-                        UGX {items.key.Price}
+                        K {items.key.Price}
                       </Text>
                       <TouchableOpacity
                         onPress={() => {
@@ -846,7 +846,7 @@ export default function MainPage({ navigation }) {
                           color: "green",
                         }}
                       >
-                        UGX {items.key.Price}
+                        K {items.key.Price}
                       </Text>
                       <TouchableOpacity
                         onPress={() => {
@@ -1402,7 +1402,7 @@ export default function MainPage({ navigation }) {
                         color: "green",
                       }}
                     >
-                      UGX {items.key.Price}
+                      K {items.key.Price}
                     </Text>
                   </View>
 
@@ -1650,7 +1650,7 @@ export default function MainPage({ navigation }) {
                       color: "green",
                     }}
                   >
-                    UGX {items.key.Price}
+                    K {items.key.Price}
                   </Text>
                 </View>
 
@@ -1769,7 +1769,7 @@ export default function MainPage({ navigation }) {
               <View style={{ marginLeft: 10 }}>
                 <Text style={{ fontWeight: "700", fontSize: 17 }}>Price</Text>
                 <Text style={{ fontWeight: "700", fontSize: 25 }}>
-                  UGX {getFinal()}
+                  K {getFinal()}
                 </Text>
               </View>
 

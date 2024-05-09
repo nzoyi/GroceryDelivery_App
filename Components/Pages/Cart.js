@@ -431,7 +431,7 @@ export default function Cart({ navigation, route }) {
                     phonenumber: phone,
                   },
                   amount: getTotal(),
-                  currency: "UGX",
+                  currency: "K",
                   payment_options: "mobilemoney,card",
                 }}
                 customButton={(props) => (
@@ -897,9 +897,7 @@ export default function Cart({ navigation, route }) {
                 <Text style={{ fontSize: 20, fontWeight: "700" }}>
                   Transport Fee
                 </Text>
-                <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                  UGX 5000
-                </Text>
+                <Text style={{ fontSize: 20, fontWeight: "700" }}>K 5000</Text>
               </View>
 
               <View
@@ -933,7 +931,7 @@ export default function Cart({ navigation, route }) {
                   Total Price
                 </Text>
                 <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                  UGX {getTotal()}
+                  K {getTotal()}
                 </Text>
               </View>
               <View

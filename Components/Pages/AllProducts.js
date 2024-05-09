@@ -302,7 +302,7 @@ export default function AllProducts({ navigation, route }) {
                     color: "green",
                   }}
                 >
-                  UGX {items.key.Price}
+                  K {items.key.Price}
                 </Text>
               </View>
 
@@ -409,7 +409,7 @@ export default function AllProducts({ navigation, route }) {
               <View style={{ marginLeft: 10 }}>
                 <Text style={{ fontWeight: "700", fontSize: 17 }}>Price</Text>
                 <Text style={{ fontWeight: "700", fontSize: 25 }}>
-                  UGX {getFinal()}
+                  K {getFinal()}
                 </Text>
               </View>
 

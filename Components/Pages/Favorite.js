@@ -271,7 +271,7 @@ export default function Favorite({ navigation }) {
                     color: "green",
                   }}
                 >
-                  UGX {items.key.Price}
+                  K {items.key.Price}
                 </Text>
               </View>
 

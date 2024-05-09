@@ -92,7 +92,7 @@ export default function ShowCalc({ item, itemid }) {
   return (
     <View>
       <Text style={{ fontSize: 20, fontWeight: "800", marginTop: 5 }}>
-        UGX {getFinal()}
+        K {getFinal()}
       </Text>
       <View
         style={{
