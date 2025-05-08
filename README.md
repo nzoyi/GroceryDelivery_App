@@ -1,4 +1,4 @@
-# 🛒 GroceryGo - Grocery Delivery App
+# 🛒 City Foods - Grocery Delivery App
 
 ![Expo
 https://img.shields.io/badge/expo-1C1E24?style=for-the-badge&logo=expo&logoColor=#D04A37
